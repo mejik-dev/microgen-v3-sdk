@@ -21,7 +21,7 @@ export default class MicrogenClient {
   constructor(options: MicrogenClientOptions) {
     if (!options?.apiKey) throw new Error('apiKey is required');
 
-    let url = 'https://api.microgen.id';
+    let url = 'https://api.stagingv3.microgen.id';
     let queryUrl = `${url}/query/api/v1/${options.apiKey}`;
 
     if (options.url) {

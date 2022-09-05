@@ -39,84 +39,84 @@ describe('Client', () => {
   let id: string;
   let secondId: string;
 
-  // const login = () => {
-  //   return microgen.auth.login<User>({
-  //     email: EMAIL,
-  //     password: PASSWORD,
-  //   });
-  // };
+  const login = () => {
+    return microgen.auth.login<User>({
+      email: EMAIL,
+      password: PASSWORD,
+    });
+  };
 
-  // beforeEach(async () => {
-  //   await login();
-  //   return true;
-  // });
+  beforeEach(async () => {
+    await login();
+    return true;
+  });
 
-  // test('login', async () => {
-  //   const response = await login();
+  test('login', async () => {
+    const response = await login();
 
-  //   expect(response.status).toBe(200);
-  //   expect(response.user?.email).toBe(EMAIL);
+    expect(response.status).toBe(200);
+    expect(response.user?.email).toBe(EMAIL);
 
-  //   const token = microgen.auth.token();
+    const token = microgen.auth.token();
 
-  //   expect(response.token).toBe(token);
-  // });
+    expect(response.token).toBe(token);
+  });
 
-  // test('login error', async () => {
-  //   const response = await microgen.auth.login<User>({
-  //     email: EMAIL,
-  //     password: PASSWORD + '1',
-  //   });
+  test('login error', async () => {
+    const response = await microgen.auth.login<User>({
+      email: EMAIL,
+      password: PASSWORD + '1',
+    });
 
-  //   expect(response.status).toBe(401);
-  //   expect(typeof response.error?.message).toBe('string');
-  // });
+    expect(response.status).toBe(401);
+    expect(typeof response.error?.message).toBe('string');
+  });
 
-  // test('token', async () => {
-  //   expect(microgen.auth.token() !== null).toBe(true);
-  // });
+  test('token', async () => {
+    expect(microgen.auth.token() !== null).toBe(true);
+  });
 
-  // test('user', async () => {
-  //   const response = await microgen.auth.user<User>();
+  test('user', async () => {
+    const response = await microgen.auth.user<User>();
 
-  //   expect(response.status).toBe(200);
-  //   expect(response.user?.email).toBe(EMAIL);
-  // });
+    expect(response.status).toBe(200);
+    expect(response.user?.email).toBe(EMAIL);
+  });
 
-  // test('update', async () => {
-  //   const response = await microgen.auth.update<User>({
-  //     firstName: 'Tester',
-  //   });
+  test('update', async () => {
+    const response = await microgen.auth.update<User>({
+      firstName: 'Tester',
+    });
 
-  //   expect(response.status).toBe(200);
-  //   expect(response.user?.email).toBe(EMAIL);
-  // });
+    expect(response.status).toBe(200);
+    expect(response.user?.email).toBe(EMAIL);
+  });
 
-  // test('logout', async () => {
-  //   const token = microgen.auth.token();
-  //   const response = await microgen.auth.logout();
+  test('logout', async () => {
+    const token = microgen.auth.token();
+    const response = await microgen.auth.logout();
 
-  //   expect(response.status).toBe(200);
-  //   expect(response.token).toBe(token);
-  // });
+    expect(response.status).toBe(200);
+    expect(response.token).toBe(token);
+  });
 
-  // test('create', async () => {
-  //   const response = await microgen
-  //     .service<Todo>(SERVICE_NAME)
-  //     .create({ name: 'Hello' });
-  //   id = response.data?._id || '';
+  test('create', async () => {
+    const response = await microgen
+      .service<Todo>(SERVICE_NAME)
+      .create({ name: 'Hello' });
+    id = response.data?._id || '';
 
-  //   expect(response.status).toBe(201);
-  // });
+    expect(response.status).toBe(201);
+  });
 
-  // test('second create', async () => {
-  //   const response = await microgen
-  //     .service<Todo>(SECOND_SERVICE_NAME)
-  //     .create({ name: 'Yes' });
+  test('second create', async () => {
+    const response = await microgen
+      .service<Todo>(SECOND_SERVICE_NAME)
+      .create({ name: 'Yes' });
 
-  //   secondId = response.data?._id || '';
-  //   expect(response.status).toBe(201);
-  // });
+    secondId = response.data?._id || '';
+    expect(response.status).toBe(201);
+  });
 
   test('find', async () => {
     const response = await microgen.service<Todo>(SERVICE_NAME).find();
@@ -124,86 +124,86 @@ describe('Client', () => {
     expect(response.status).toBe(200);
   });
 
-  // test('find error', async () => {
-  //   const response = await microgen.service<Todo>(SERVICE_NAME + '1').find();
+  test('find error', async () => {
+    const response = await microgen.service<Todo>(SERVICE_NAME + '1').find();
 
-  //   expect(response.status).toBe(400);
-  //   expect(typeof response.error?.message).toBe('string');
-  // });
+    expect(response.status).toBe(400);
+    expect(typeof response.error?.message).toBe('string');
+  });
 
-  // test('getById', async () => {
-  //   const response = await microgen.service<Todo>(SERVICE_NAME).getById(id);
+  test('getById', async () => {
+    const response = await microgen.service<Todo>(SERVICE_NAME).getById(id);
 
-  //   expect(response.status).toBe(200);
-  // });
+    expect(response.status).toBe(200);
+  });
 
-  // test('updateById', async () => {
-  //   const response = await microgen
-  //     .service<Todo>(SERVICE_NAME)
-  //     .updateById(id, { name: 'Updated' });
+  test('updateById', async () => {
+    const response = await microgen
+      .service<Todo>(SERVICE_NAME)
+      .updateById(id, { name: 'Updated' });
 
-  //   expect(response.status).toBe(200);
-  // });
+    expect(response.status).toBe(200);
+  });
 
-  // test('link', async () => {
-  //   const response = await microgen
-  //     .service<Todo>(SERVICE_NAME)
-  //     .link(id, { [SECOND_SERVICE_NAME]: secondId });
+  test('link', async () => {
+    const response = await microgen
+      .service<Todo>(SERVICE_NAME)
+      .link(id, { [SECOND_SERVICE_NAME]: secondId });
 
-  //   expect(response.status).toBe(200);
-  // });
+    expect(response.status).toBe(200);
+  });
 
-  // test('unlink', async () => {
-  //   const response = await microgen
-  //     .service<Todo>(SERVICE_NAME)
-  //     .unlink(id, { [SECOND_SERVICE_NAME]: secondId });
+  test('unlink', async () => {
+    const response = await microgen
+      .service<Todo>(SERVICE_NAME)
+      .unlink(id, { [SECOND_SERVICE_NAME]: secondId });
 
-  //   expect(response.status).toBe(200);
-  // });
+    expect(response.status).toBe(200);
+  });
 
-  // test('deleteById', async () => {
-  //   const response = await microgen
-  //     .service<Todo>(SERVICE_NAME)
-  //     .deleteById(id);
+  test('deleteById', async () => {
+    const response = await microgen
+      .service<Todo>(SERVICE_NAME)
+      .deleteById(id);
 
-  //   expect(response.status).toBe(200);
-  // });
+    expect(response.status).toBe(200);
+  });
 
-  // test('second deleteById', async () => {
-  //   const response = await microgen
-  //     .service<Todo>(SECOND_SERVICE_NAME)
-  //     .deleteById(secondId);
+  test('second deleteById', async () => {
+    const response = await microgen
+      .service<Todo>(SECOND_SERVICE_NAME)
+      .deleteById(secondId);
 
-  //   expect(response.status).toBe(200);
-  // });
+    expect(response.status).toBe(200);
+  });
 
-  // test('upload', async () => {
-  //   const filePath = path.join(__dirname, 'icon.png');
-  //   const file = fs.createReadStream(filePath);
-  //   const response = await microgen.storage.upload(file);
+  test('upload', async () => {
+    const filePath = path.join(__dirname, 'icon.png');
+    const file = fs.createReadStream(filePath);
+    const response = await microgen.storage.upload(file);
 
-  //   expect(response.status).toBe(200);
-  // });
+    expect(response.status).toBe(200);
+  });
 
-  // test('fields', async () => {
-  //   const response = await microgen.service(SERVICE_NAME).fields()
-  //   console.log(response)
+  test('fields', async () => {
+    const response = await microgen.service(SERVICE_NAME).fields()
+    console.log(response)
 
-  //   expect(response.status).toBe(200)
-  // })
+    expect(response.status).toBe(200)
+  })
 
-  // test('realtime', async () => {
-  //   const key = await microgen.realtime.subscribe<Todo>(
-  //     SERVICE_NAME,
-  //     { event: '*', where: { name: 'tes' } },
-  //     (message) => {
-  //       console.log(message);
-  //     },
-  //   );
-  //   const unsubscribe = microgen.realtime.unsubscribe(key);
+  test('realtime', async () => {
+    const key = await microgen.realtime.subscribe<Todo>(
+      SERVICE_NAME,
+      { event: '*', where: { name: 'tes' } },
+      (message) => {
+        console.log(message);
+      },
+    );
+    const unsubscribe = microgen.realtime.unsubscribe(key);
 
-  //   expect(unsubscribe).toBe(true);
-  // });
+    expect(unsubscribe).toBe(true);
+  });
 });
 
 test('count', async () => {
