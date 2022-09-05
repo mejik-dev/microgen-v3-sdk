@@ -10,7 +10,7 @@ module.exports = {
     filename: 'microgen-v3.js',
     library: {
       type: 'umd',
-      name: 'microgen-v3',
+      name: 'microgenV3',
     },
   },
   module: {

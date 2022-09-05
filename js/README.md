@@ -351,14 +351,14 @@ const { data, error } = await microgen.service('posts').fields();
 You can now use plain `<script>`s to import microgen from CDNs, like:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/microgen-v3-sdk"></script>
+<script src="https://cdn.jsdelivr.net/npm/microgen-v3"></script>
 ```
 
 Then you can use it from a global `microgen` variable:
 
 ```html
 <script>
-  const { createClient } = microgen;
+  const { createClient } = microgenV3;
   const client = createClient({
     apiKey: '*******************',
   });
