@@ -40,18 +40,11 @@ Microgen let you focus on the frontend and product for your end user.
 Provides SDK with various language supports.
 
 - [Javascript](./js/README.md)
-- [PHP](https://github.com/kontenbase/kontenbase-php/blob/main/README.md)
-- [Go](https://github.com/kontenbase/kontenbase-go/blob/main/README.md)
+- [Go](https://github.com/mejik-dev/microgen-v3-go/blob/main/README.md)
 
 ## Documentation
 
 Visit our documentation at [docs.microgen.id](https://docs.microgen.id)
-
-## Support
-
-- [GitHub Discussions](https://github.com/kontenbase/kontenbase/discussions). Mostly for anything, sharing your works, and help others.
-- [GitHub Issues on Feedback](https://github.com/kontenbase/feedback/issues). Mostly for general feedback for the platform.
-- [GitHub Issues on Microgen](https://github.com/kontenbase/kontenbase/issues). Mostly for bug reports and errors to solve.
 
 ## Status
 
@@ -79,24 +72,3 @@ Publish API without Ops! No deployment time. Fast!
 ### 4. Consume API without Frontend Barrier
 
 Whether React, Vue, Angular, or others. Up to you!
-
-## Project Examples
-
-Here are some project examples that might help you to understand how to implement <a href="https://microgen.id" target="_blank">Microgen</a> on frontend.
-
-You can find all of them in the [`/examples`](./examples) folder in this repo.
-
-### Todo App
-
-- Repo: [nextjs-todo](https://github.com/kontenbase/kontenbase/tree/main/examples/nextjs-todo)
-- Live Demo: [kontenbase-todo.vercel.app](https://kontenbase-todo.vercel.app)
-
-### Blog App
-
-- Repo: [Blog App](https://github.com/kontenbase/kontenbase/tree/main/examples/nextjs-blog)
-- Live Demo: [kontenbase-blog.vercel.app](https://kontenbase-blog.vercel.app)
-
-### Chat App
-
-- Repo: [Chat App](https://github.com/kontenbase/kontenbase/tree/main/examples/reactjs-chat)
-- Live Demo: [kontenbase-chat.vercel.app](https://kontenbase-chat.vercel.app)

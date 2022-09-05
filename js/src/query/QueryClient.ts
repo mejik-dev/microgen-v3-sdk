@@ -1,13 +1,13 @@
 import axios from 'axios';
 import qs from 'qs';
 import {
-  KontenbaseResponse,
-  KontenbaseResponseFailure,
-  KontenbaseSingleResponse,
+  MicrogenResponse,
+  MicrogenResponseFailure,
+  MicrogenSingleResponse,
   FindOption,
   QueryClientOption,
-  KontenbaseCount,
-  KontenbaseResponseCount,
+  MicrogenCount,
+  MicrogenResponseCount,
   CountOption,
   GetByIdOption,
 } from './lib/types';
@@ -21,7 +21,7 @@ export default class QueryClient<T> {
     this.headers = { ...options.headers };
   }
 
-  private _error(error: any): KontenbaseResponseFailure {
+  private _error(error: any): MicrogenResponseFailure {
     if (axios.isAxiosError(error) && error.response) {
       return {
         error: {
@@ -91,7 +91,7 @@ export default class QueryClient<T> {
     return query;
   }
 
-  async find(option?: FindOption<T>): Promise<KontenbaseResponse<T>> {
+  async find(option?: FindOption<T>): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
@@ -118,7 +118,7 @@ export default class QueryClient<T> {
   async getById(
     id: string,
     option?: GetByIdOption<T>,
-  ): Promise<KontenbaseSingleResponse<T>> {
+  ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
@@ -140,7 +140,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async create(body: Partial<T>): Promise<KontenbaseSingleResponse<T>> {
+  async create(body: Partial<T>): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.post<T>(
@@ -165,7 +165,7 @@ export default class QueryClient<T> {
   async updateById(
     id: string,
     body: Partial<T>,
-  ): Promise<KontenbaseSingleResponse<T>> {
+  ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.patch<T>(
@@ -187,7 +187,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async deleteById(id: string): Promise<KontenbaseSingleResponse<T>> {
+  async deleteById(id: string): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.delete<T>(
@@ -211,7 +211,7 @@ export default class QueryClient<T> {
   async link(
     id: string,
     body: { [key: string]: string },
-  ): Promise<KontenbaseSingleResponse<T>> {
+  ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.request<T>({
@@ -235,7 +235,7 @@ export default class QueryClient<T> {
   async unlink(
     id: string,
     body: { [key: string]: string },
-  ): Promise<KontenbaseSingleResponse<T>> {
+  ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.request<T>({
@@ -256,11 +256,11 @@ export default class QueryClient<T> {
     });
   }
 
-  async count(option?: CountOption<T>): Promise<KontenbaseResponseCount> {
+  async count(option?: CountOption<T>): Promise<MicrogenResponseCount> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
-        const { data, status, statusText } = await axios.get<KontenbaseCount>(
+        const { data, status, statusText } = await axios.get<MicrogenCount>(
           `${this.url}/count${query ? '?' + query : ''}`,
           {
             headers: this.headers,
@@ -278,7 +278,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async fields(): Promise<KontenbaseResponse<T>> {
+  async fields(): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.get<T[]>(

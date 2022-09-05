@@ -1,41 +1,41 @@
-# Kontenbase SDK
+# Microgen SDK
 
-This is the Official Node JS and Browser client/library for Kontenbase API. Visit https://kontenbase.com. More information about the product and see documentation at http://docs.kontenbase.com for more technical details.
+This is the Official Node JS and Browser client/library for Microgen API. Visit https://microgen.id. More information about the product and see documentation at http://docs.microgen.id for more technical details.
 
 ## API Documentation
 
-Please check [Kontenbase API Reference](http:/docs.kontenbase.com).
+Please check [Microgen API Reference](http:/docs.microgen.id).
 
 ## Installation
 
 ### Node.js
 
-To install kontenbase in a node project:
+To install microgen in a node project:
 
 ```bash
-npm install --save @kontenbase/sdk
+npm install --save microgen-v3-sdk
 ```
 
 ## Usage
 
-Configure package with your account's **API key** obtained from your [Kontenbase Dashboard](https://kontenbase.com).
+Configure package with your account's **API key** obtained from your [Microgen Dashboard](https://microgen.id).
 
 ```js
-const { KontenbaseClient } = require('@kontenbase/sdk');
+const { MicrogenClient } = require('microgen-v3-sdk');
 
-const kontenbase = new KontenbaseClient({
+const microgen = new MicrogenClient({
   apiKey: '*******************',
 });
 ```
 
 ## Authentication
 
-Use kontenbase auth services for manage your user.
+Use microgen auth services for manage your user.
 
 ### Register
 
 ```js
-const { user, token, error } = await kontenbase.auth.register({
+const { user, token, error } = await microgen.auth.register({
   firstName: 'Ega',
   lastName: 'Radiegtya',
   email: 'user@gmail.com',
@@ -46,7 +46,7 @@ const { user, token, error } = await kontenbase.auth.register({
 ### Login
 
 ```js
-const { user, token, error } = await kontenbase.auth.login({
+const { user, token, error } = await microgen.auth.login({
   email: 'user@gmail.com',
   password: 'password',
 });
@@ -55,13 +55,13 @@ const { user, token, error } = await kontenbase.auth.login({
 ### User
 
 ```js
-const { user, error } = await kontenbase.auth.user();
+const { user, error } = await microgen.auth.user();
 ```
 
 ```js
 // Get user with filter:
 // lookup
-const { user, error } = await kontenbase
+const { user, error } = await microgen
   .auth
   .user({ filterKey: filterValue, ... });
 ```
@@ -69,13 +69,13 @@ const { user, error } = await kontenbase
 ### Update
 
 ```js
-const { user, error } = await kontenbase.auth.update({ firstName: 'Ega' });
+const { user, error } = await microgen.auth.update({ firstName: 'Ega' });
 ```
 
 ### Logout
 
 ```js
-const { user, token, error } = await kontenbase.auth.logout();
+const { user, token, error } = await microgen.auth.logout();
 ```
 
 ## Database
@@ -83,16 +83,16 @@ const { user, token, error } = await kontenbase.auth.logout();
 ### Create
 
 ```js
-const { data, error } = await kontenbase.service('posts').create({
+const { data, error } = await microgen.service('posts').create({
   name: 'Post 1',
-  notes: 'Hello kontenbase',
+  notes: 'Hello microgen',
 });
 ```
 
 ### Get
 
 ```js
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .getById('605a251d7b8678bf6811k3b1');
 ```
@@ -101,7 +101,7 @@ const { data, error } = await kontenbase
 // Get record with filters:
 // select
 // lookup
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .getById('605a251d7b8678bf6811k3b1', { filterKey: filterValue, ... });
 ```
@@ -109,7 +109,7 @@ const { data, error } = await kontenbase
 ### Update
 
 ```js
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .updateById('605a251d7b8678bf6811k3b1', {
     notes: 'Hello world',
@@ -119,7 +119,7 @@ const { data, error } = await kontenbase
 ### Delete
 
 ```js
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .deleteById('605a251d7b8678bf6811k3b1');
 ```
@@ -127,7 +127,7 @@ const { data, error } = await kontenbase
 ### Link
 
 ```js
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .link('605a251d7b8678bf6811k3b1', {
     categories: '61d26e8e2adb12b85c33029c',
@@ -137,7 +137,7 @@ const { data, error } = await kontenbase
 ### Unlink
 
 ```js
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .unlink('605a251d7b8678bf6811k3b1', {
     categories: '61d26e8e2adb12b85c33029c',
@@ -147,120 +147,120 @@ const { data, error } = await kontenbase
 ### Find
 
 ```js
-const { data, error } = await kontenbase.service('posts').find();
+const { data, error } = await microgen.service('posts').find();
 ```
 
 ```js
 // sort
 // 1 = ascending
 // -1 = descending
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ sort: { name: 1 } });
 ```
 
 ```js
 // skip
-const { data, error } = await kontenbase.service('posts').find({ skip: 10 });
+const { data, error } = await microgen.service('posts').find({ skip: 10 });
 ```
 
 ```js
 // limit
-const { data, error } = await kontenbase.service('posts').find({ limit: 10 });
+const { data, error } = await microgen.service('posts').find({ limit: 10 });
 ```
 
 ```js
 // select
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ select: ['name'] });
 ```
 
 ```js
 // lookup into multiple fields of link to record
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ lookup: ['categories'] });
 ```
 
 ```js
 // lookup into all fields of link to record
-const { data, error } = await kontenbase.service('posts').find({ lookup: '*' });
+const { data, error } = await microgen.service('posts').find({ lookup: '*' });
 ```
 
 ```js
 // lookup but only show the ids
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ lookup: { _id: '*' } });
 ```
 
 ```js
 // where
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { name: 'Ega' } });
 ```
 
 ```js
 // not equal
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { name: { $ne: 'Ega' } } });
 ```
 
 ```js
 // contains
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { name: { $contains: 'Ega' } } });
 ```
 
 ```js
 // not contains
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { name: { $notContains: 'Ega' } } });
 ```
 
 ```js
 // include
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { name: { $in: ['Ega'] } } });
 ```
 
 ```js
 // not include
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { name: { $nin: ['Ega'] } } });
 ```
 
 ```js
 // less then
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { total: { $lt: 10 } } });
 ```
 
 ```js
 // less then equal
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { total: { $lte: 10 } } });
 ```
 
 ```js
 // greater then
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { total: { $gt: 10 } } });
 ```
 
 ```js
 // greater then equal
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .find({ where: { total: { $gte: 10 } } });
 ```
@@ -269,12 +269,12 @@ const { data, error } = await kontenbase
 
 ```js
 // count all records
-const { data, error } = await kontenbase.service('posts').count();
+const { data, error } = await microgen.service('posts').count();
 ```
 
 ```js
 // count with filters
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .count({ filterKey: filterValue, ... });
 ```
@@ -286,13 +286,13 @@ const { data, error } = await kontenbase
 ```js
 // from client
 const file = event.target.files[0];
-const { data, error } = await kontenbase.storage.upload(file);
+const { data, error } = await microgen.storage.upload(file);
 ```
 
 ```js
 // from server
 const file = req.files[0];
-const { data, error } = await kontenbase.storage.upload(
+const { data, error } = await microgen.storage.upload(
   file.buffer,
   file.originalname,
 );
@@ -310,7 +310,7 @@ const { data, error } = await kontenbase.storage.upload(
 ### Subscribe
 
 ```js
-kontenbase.realtime.subscribe('posts', { event: '*' }, (message) => {
+microgen.realtime.subscribe('posts', { event: '*' }, (message) => {
   if (message.error) {
     console.log(message.error);
     return;
@@ -323,7 +323,7 @@ kontenbase.realtime.subscribe('posts', { event: '*' }, (message) => {
 ### Unsubscribe
 
 ```js
-const key = await kontenbase.realtime.subscribe(
+const key = await microgen.realtime.subscribe(
   'posts',
   { event: '*' },
   (message) => {
@@ -336,29 +336,29 @@ const key = await kontenbase.realtime.subscribe(
   },
 );
 
-kontenbase.realtime.unsubscribe(key);
+microgen.realtime.unsubscribe(key);
 ```
 
 ### Find fields
 
 ```js
 // Find all created fields in the service
-const { data, error } = await kontenbase.service('posts').fields();
+const { data, error } = await microgen.service('posts').fields();
 ```
 
 ## CDN
 
-You can now use plain `<script>`s to import kontenbase from CDNs, like:
+You can now use plain `<script>`s to import microgen from CDNs, like:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@kontenbase/sdk"></script>
+<script src="https://cdn.jsdelivr.net/npm/microgen-v3-sdk"></script>
 ```
 
-Then you can use it from a global `kontenbase` variable:
+Then you can use it from a global `microgen` variable:
 
 ```html
 <script>
-  const { createClient } = kontenbase;
+  const { createClient } = microgen;
   const client = createClient({
     apiKey: '*******************',
   });

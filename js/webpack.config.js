@@ -7,10 +7,10 @@ module.exports = {
   entry: './src/index.ts',
   output: {
     path: path.resolve(__dirname, 'dist/umd'),
-    filename: 'kontenbase.js',
+    filename: 'microgen-v3.js',
     library: {
       type: 'umd',
-      name: 'kontenbase',
+      name: 'microgen-v3',
     },
   },
   module: {

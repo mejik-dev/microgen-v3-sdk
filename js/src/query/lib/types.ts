@@ -1,20 +1,20 @@
-interface KontenbaseResponseBase {
+interface MicrogenResponseBase {
   status: number;
   statusText: string;
 }
 
-interface KontenbaseError {
+interface MicrogenError {
   message: string;
 }
 
-interface KontenbaseResponseSuccess<T> extends KontenbaseResponseBase {
+interface MicrogenResponseSuccess<T> extends MicrogenResponseBase {
   data?: T[];
   error?: null;
 }
 
-export interface KontenbaseResponseFailure extends KontenbaseResponseBase {
+export interface MicrogenResponseFailure extends MicrogenResponseBase {
   data?: null;
-  error?: KontenbaseError;
+  error?: MicrogenError;
 }
 
 interface Pagination {
@@ -22,20 +22,20 @@ interface Pagination {
   skip?: number | null;
 }
 
-export type KontenbaseResponse<T> = (
-  | KontenbaseResponseSuccess<T>
-  | KontenbaseResponseFailure
+export type MicrogenResponse<T> = (
+  | MicrogenResponseSuccess<T>
+  | MicrogenResponseFailure
 ) &
   Pagination;
 
-interface KontenbaseSingleResponseSuccess<T> extends KontenbaseResponseBase {
+interface MicrogenSingleResponseSuccess<T> extends MicrogenResponseBase {
   data?: T;
   error?: null;
 }
 
-export type KontenbaseSingleResponse<T> =
-  | KontenbaseSingleResponseSuccess<T>
-  | KontenbaseResponseFailure;
+export type MicrogenSingleResponse<T> =
+  | MicrogenSingleResponseSuccess<T>
+  | MicrogenResponseFailure;
 
 export type LookupGetId<T> = {
   _id: Array<keyof Partial<T>> | '*';
@@ -98,15 +98,15 @@ export interface QueryClientOption {
   headers?: { [key: string]: string };
 }
 
-export interface KontenbaseCount {
+export interface MicrogenCount {
   count: number;
 }
 
-export interface KontenbaseResponseSuccessCount extends KontenbaseResponseBase {
-  data?: KontenbaseCount;
+export interface MicrogenResponseSuccessCount extends MicrogenResponseBase {
+  data?: MicrogenCount;
   error?: null;
 }
 
-export type KontenbaseResponseCount =
-  | KontenbaseResponseSuccessCount
-  | KontenbaseResponseFailure;
+export type MicrogenResponseCount =
+  | MicrogenResponseSuccessCount
+  | MicrogenResponseFailure;

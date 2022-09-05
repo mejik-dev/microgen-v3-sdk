@@ -5,9 +5,9 @@ import { AuthClient } from '../auth';
 import { RealtimeClient } from '../realtime';
 import { StorageClient } from '../storage';
 import Realtime from './lib/Realtime';
-import { KontenbaseClientOptions } from './lib/types';
+import { MicrogenClientOptions } from './lib/types';
 
-export default class KontenbaseClient {
+export default class MicrogenClient {
   auth: AuthClient;
   realtime: Realtime;
   storage: StorageClient;
@@ -18,10 +18,10 @@ export default class KontenbaseClient {
   protected realtimeUrl: string;
   protected headers: { [key: string]: string };
 
-  constructor(options: KontenbaseClientOptions) {
+  constructor(options: MicrogenClientOptions) {
     if (!options?.apiKey) throw new Error('apiKey is required');
 
-    let url = 'https://api.kontenbase.com';
+    let url = 'https://api.microgen.id';
     let queryUrl = `${url}/query/api/v1/${options.apiKey}`;
 
     if (options.url) {

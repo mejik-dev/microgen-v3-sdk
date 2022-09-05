@@ -1,16 +1,16 @@
-import { KontenbaseClient } from '../src';
+import { MicrogenClient } from '../src';
 
 const URL = process.env.URL || '';
 const API_KEY = process.env.API_KEY || '123';
 const SERVICE_NAME = process.env.SERVICE_NAME || '';
 
-const kontenbase = new KontenbaseClient({
+const microgen = new MicrogenClient({
   url: URL,
   apiKey: API_KEY,
 });
 
 describe('Filter', () => {
-  const service = kontenbase.service(SERVICE_NAME);
+  const service = microgen.service(SERVICE_NAME);
   const serviceProto = Object.getPrototypeOf(service);
 
   test('limit', async () => {

@@ -1,10 +1,10 @@
-export type KontenbaseClientOptions = {
+export type MicrogenClientOptions = {
   /**
-   * The unique Kontenbase Key which is supplied when you create a new project in your project dashboard.
+   * The unique Microgen Key which is supplied when you create a new project in your project dashboard.
    */
   apiKey: string;
   /**
-   * The Kontenbase API URL.
+   * The Microgen API URL.
    */
   url?: string;
 };
