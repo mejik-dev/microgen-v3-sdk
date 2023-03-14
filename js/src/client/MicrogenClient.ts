@@ -21,34 +21,13 @@ export default class MicrogenClient {
   constructor(options: MicrogenClientOptions) {
     if (!options?.apiKey) throw new Error('apiKey is required');
 
-    let url = 'https://api.stagingv3.microgen.id';
-    let queryUrl = `${url}/query/api/v1/${options.apiKey}`;
+    const host = options.host ?? 'v3.microgen.id';
 
-    if (options.url) {
-      const { origin } = new URL(options.url);
-
-      if (origin !== url) {
-        const isDedicated = !origin.includes('api');
-
-        if (isDedicated) {
-          const { subDomains, domain } = parseDomain(
-            fromUrl(origin),
-          ) as ParseResultListed;
-
-          subDomains.splice(0, 1, 'api');
-          url = `https://${subDomains.join('.')}.${domain}.com`;
-        } else {
-          url = origin;
-        }
-
-        queryUrl = `${origin}${isDedicated ? '' : '/query'}/api/v1/${
-          options.apiKey
-        }`;
-      }
-    }
-
+    let queryUrl = `https://database-query.${host}/api/v1/${options.apiKey}`;
+    let realtimeUrl = `https://database-stream.${host}`
+ 
     this.queryUrl = queryUrl;
-    this.realtimeUrl = `${url}/stream`;
+    this.realtimeUrl = realtimeUrl;
     this.apiKey = options.apiKey;
     this.headers = {};
     this.auth = this._initAuth();
