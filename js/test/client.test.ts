@@ -2,14 +2,14 @@ import { MicrogenClient, createClient } from '../src';
 import fs from 'fs';
 import path from 'path';
 
-const URL = process.env.URL || "";
-const API_KEY = process.env.API_KEY || "";
+const URL = process.env.URL || '';
+const API_KEY = process.env.API_KEY || '';
 const SERVICE_NAME = process.env.SERVICE_NAME || 'todos';
 const SECOND_SERVICE_NAME = process.env.SECOND_SERVICE_NAME || 'categories';
 const EMAIL = process.env.EMAIL || '';
 const PASSWORD = process.env.PASSWORD || '';
 const microgen = new MicrogenClient({
-  url: URL,
+  host: URL,
   apiKey: API_KEY,
 });
 
@@ -31,7 +31,7 @@ test('it should create the client connection', async () => {
 
 test('it should throw an error if no valid params are provided', async () => {
   expect(() => createClient({ apiKey: '' })).toThrowError(
-    'apiKey is required',
+    'apiKey is required.',
   );
 });
 
@@ -162,9 +162,7 @@ describe('Client', () => {
   });
 
   test('deleteById', async () => {
-    const response = await microgen
-      .service<Todo>(SERVICE_NAME)
-      .deleteById(id);
+    const response = await microgen.service<Todo>(SERVICE_NAME).deleteById(id);
 
     expect(response.status).toBe(200);
   });
@@ -186,11 +184,11 @@ describe('Client', () => {
   });
 
   test('fields', async () => {
-    const response = await microgen.service(SERVICE_NAME).fields()
-    console.log(response)
+    const response = await microgen.service(SERVICE_NAME).field.find();
+    console.log(response);
 
-    expect(response.status).toBe(200)
-  })
+    expect(response.status).toBe(200);
+  });
 
   test('realtime', async () => {
     const key = await microgen.realtime.subscribe<Todo>(
@@ -210,4 +208,32 @@ test('count', async () => {
   const response = await microgen.service<Todo>(SERVICE_NAME).count();
 
   expect(response.status).toBe(200);
+});
+
+describe('field', async () => {
+  let id: string;
+
+  const login = () => {
+    return microgen.auth.login<User>({
+      email: EMAIL,
+      password: PASSWORD,
+    });
+  };
+
+  beforeEach(async () => {
+    await login();
+    return true;
+  });
+
+  test('find', async () => {
+    const response = await microgen.service(SERVICE_NAME).field.find();
+
+    expect(response.status).toBe(200);
+  });
+
+  test('getById', async () => {
+    const response = await microgen.service(SERVICE_NAME).field.getById(id);
+
+    expect(response.status).toBe(200);
+  });
 });

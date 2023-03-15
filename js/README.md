@@ -177,22 +177,29 @@ const { data, error } = await microgen
 ```
 
 ```js
-// lookup into multiple fields of link to record
+// lookup into multiple link to record fields
 const { data, error } = await microgen
   .service('posts')
   .find({ lookup: ['categories'] });
 ```
 
 ```js
-// lookup into all fields of link to record
+// lookup into all link to record fields
 const { data, error } = await microgen.service('posts').find({ lookup: '*' });
 ```
 
 ```js
-// lookup but only show the ids
+// lookup into all link to record fields but only show the ids
 const { data, error } = await microgen
   .service('posts')
   .find({ lookup: { _id: '*' } });
+```
+
+```js
+// lookup into all link to record fields and show all data
+const { data, error } = await microgen
+  .service('posts')
+  .find({ lookup: { '*': '*' } });
 ```
 
 ```js
@@ -339,11 +346,20 @@ const key = await microgen.realtime.subscribe(
 microgen.realtime.unsubscribe(key);
 ```
 
-### Find fields
+## Field
+
+### Find
 
 ```js
-// Find all created fields in the service
-const { data, error } = await microgen.service('posts').fields();
+const { data, error } = await microgen.service('posts').field.find();
+```
+
+### Get
+
+```js
+const { data, error } = await microgen
+  .service('posts')
+  .field.getById('605a251d7b8678bf6811k3b1');
 ```
 
 ## CDN
@@ -351,7 +367,7 @@ const { data, error } = await microgen.service('posts').fields();
 You can now use plain `<script>`s to import microgen from CDNs, like:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/microgen-v3"></script>
+<script src="https://cdn.jsdelivr.net/npm/microgen-v3-sdk"></script>
 ```
 
 Then you can use it from a global `microgen` variable:

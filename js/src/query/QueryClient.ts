@@ -1,5 +1,6 @@
 import axios from 'axios';
 import qs from 'qs';
+import { FieldClient } from '../field';
 import {
   MicrogenResponse,
   MicrogenResponseFailure,
@@ -16,9 +17,15 @@ export default class QueryClient<T> {
   protected url: string;
   protected headers: { [key: string]: string };
 
-  constructor(url: string, options: QueryClientOption) {
-    this.url = url;
+  public field: FieldClient<T>;
+
+  constructor(tableName: string, options: QueryClientOption) {
+    this.url = `${options.url}/${tableName}`;
     this.headers = { ...options.headers };
+    this.field = new FieldClient<T>(
+      `${options.url}/tables/${tableName}`,
+      options,
+    );
   }
 
   private _error(error: any): MicrogenResponseFailure {
@@ -262,27 +269,6 @@ export default class QueryClient<T> {
         const query = this._filter(option);
         const { data, status, statusText } = await axios.get<MicrogenCount>(
           `${this.url}/count${query ? '?' + query : ''}`,
-          {
-            headers: this.headers,
-          },
-        );
-
-        resolve({
-          data,
-          status,
-          statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
-  }
-
-  async fields(): Promise<MicrogenResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
-      try {
-        const { data, status, statusText } = await axios.get<T[]>(
-          `${this.url}/fields`,
           {
             headers: this.headers,
           },

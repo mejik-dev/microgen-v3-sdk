@@ -1,6 +1,6 @@
 {
   "name": "microgen-v3-sdk",
-  "version": "0.8.12",
+  "version": "0.8.17",
   "description": "Microgen SDK",
   "main": "dist/main/index.js",
   "types": "dist/main/index.d.ts",
@@ -45,9 +45,7 @@
     "centrifuge": "^2.8.5",
     "isomorphic-form-data": "^2.0.0",
     "isomorphic-ws": "^4.0.1",
-    "parse-domain": "^5.0.0",
     "qs": "^6.10.2",
-    "url-parse": "^1.5.10",
     "ws": "^8.8.1"
   },
   "jsdelivr": "dist/umd/microgen-v3.js",

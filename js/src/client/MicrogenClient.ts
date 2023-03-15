@@ -1,5 +1,3 @@
-import URL from 'url-parse';
-import { parseDomain, fromUrl, ParseResultListed } from 'parse-domain';
 import { QueryClient } from '..';
 import { AuthClient } from '../auth';
 import { RealtimeClient } from '../realtime';
@@ -23,11 +21,8 @@ export default class MicrogenClient {
 
     const host = options.host ?? 'v3.microgen.id';
 
-    let queryUrl = `https://database-query.${host}/api/v1/${options.apiKey}`;
-    let realtimeUrl = `https://database-stream.${host}`
- 
-    this.queryUrl = queryUrl;
-    this.realtimeUrl = realtimeUrl;
+    this.queryUrl = `https://database-query.${host}/api/v1/${options.apiKey}`;
+    this.realtimeUrl = `https://database-stream.${host}`;
     this.apiKey = options.apiKey;
     this.headers = {};
     this.auth = this._initAuth();
@@ -59,8 +54,9 @@ export default class MicrogenClient {
     });
   }
 
-  service<T = any>(name: string): QueryClient<T> {
-    return new QueryClient<T>(`${this.queryUrl}/${name}`, {
+  service<T = any>(tableName: string): QueryClient<T> {
+    return new QueryClient<T>(tableName, {
+      url: this.queryUrl,
       headers: this._getHeaders(),
     });
   }

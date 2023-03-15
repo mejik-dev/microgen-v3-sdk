@@ -95,6 +95,7 @@ export type GetByIdOption<T> = {
 };
 
 export interface QueryClientOption {
+  url: string;
   headers?: { [key: string]: string };
 }
 
