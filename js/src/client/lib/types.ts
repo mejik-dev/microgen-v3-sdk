@@ -6,5 +6,5 @@ export type MicrogenClientOptions = {
   /**
    * The Microgen API URL.
    */
-  url?: string;
+  host?: string;
 };
