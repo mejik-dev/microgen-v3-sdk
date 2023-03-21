@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
+
 module.exports = {
   mode: 'production',
   devtool: 'source-map',
