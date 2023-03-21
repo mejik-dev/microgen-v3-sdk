@@ -5,6 +5,11 @@ import {
   RealtimeCallback,
   SubscribeOption,
 } from './lib/types';
+import * as https from 'https';
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 const Centrifuge = require('centrifuge');
 const WebSocket = require('isomorphic-ws');
@@ -24,6 +29,7 @@ export default class RealtimeClient {
     }/websocket${token ? `?token=${token}` : ''}`;
     return new Centrifuge(url, {
       websocket: this.isBrowser ? null : WebSocket,
+      disableWithCredentials: false,
     });
   }
 
@@ -46,6 +52,9 @@ export default class RealtimeClient {
 
         const getChannel = await axios.get(
           `${this.option.url}/channel/${this.option.apiKey}/${name}`,
+          {
+            httpsAgent: httpsAgent,
+          },
         );
 
         let filter = '';
