@@ -7,4 +7,8 @@ export type MicrogenClientOptions = {
    * The Microgen API URL.
    */
   host?: string;
+  /**
+   * secure protocol
+   */
+  isSecure?: boolean;
 };

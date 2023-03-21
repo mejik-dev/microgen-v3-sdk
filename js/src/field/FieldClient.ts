@@ -6,6 +6,11 @@ import {
   FieldResponseFailure,
   FieldSingleResponse,
 } from './lib/types';
+import * as https from "https";
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 export default class FieldClient<T> {
   protected url: string;
@@ -47,6 +52,7 @@ export default class FieldClient<T> {
           this.url,
           {
             headers: this.headers,
+            httpsAgent: httpsAgent,
           },
         );
 
@@ -68,6 +74,7 @@ export default class FieldClient<T> {
           `${this.url}/${id}`,
           {
             headers: this.headers,
+            httpsAgent: httpsAgent,
           },
         );
 
