@@ -45,6 +45,7 @@
     "centrifuge": "^2.8.5",
     "isomorphic-form-data": "^2.0.0",
     "isomorphic-ws": "^4.0.1",
+    "node-polyfill-webpack-plugin": "^2.0.1",
     "qs": "^6.10.2",
     "ws": "^8.8.1"
   },
