@@ -1,11 +1,11 @@
 import { MicrogenClient } from '../src';
 
-const URL = process.env.URL || '';
-const API_KEY = process.env.API_KEY || '123';
+const HOST = process.env.HOST || '';
+const API_KEY = process.env.API_KEY || '';
 const SERVICE_NAME = process.env.SERVICE_NAME || '';
 
 const microgen = new MicrogenClient({
-  url: URL,
+  host: HOST,
   apiKey: API_KEY,
 });
 
@@ -81,12 +81,20 @@ describe('Filter', () => {
     expect(result).toBe('$lookup=*');
   });
 
-  test('lookup but only show ids', async () => {
+  test('lookup into all fields but only show ids', async () => {
     const result = serviceProto._filter({
       lookup: { _id: '*' },
     });
 
     expect(result).toBe('$lookup[_id]=*');
+  });
+
+  test('lookup into all fields and show all data', async () => {
+    const result = serviceProto._filter({
+      lookup: { '*': '*' },
+    });
+
+    expect(result).toBe('$lookup[*]=*');
   });
 
   test('$ne', async () => {

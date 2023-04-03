@@ -89,6 +89,21 @@ const { data, error } = await microgen.service('posts').create({
 });
 ```
 
+### Create Many
+
+```js
+const { data, error } = await microgen.service('posts').createMany([
+  {
+    name: 'Post 1',
+    notes: 'Hello microgen',
+  },
+  {
+    name: 'Post 2',
+    notes: 'Hello world',
+  },
+]);
+```
+
 ### Get
 
 ```js
@@ -116,12 +131,35 @@ const { data, error } = await microgen
   });
 ```
 
+### Update Many
+
+```js
+const { data, error } = await microgen.service('posts').updateMany([
+  {
+    _id: '605a251d7b8678bf6811k3b1',
+    notes: 'Hello world',
+  },
+  {
+    _id: '605a251d7b8678bf6811k3b2',
+    notes: 'Hello microgen',
+  },
+]);
+```
+
 ### Delete
 
 ```js
 const { data, error } = await microgen
   .service('posts')
   .deleteById('605a251d7b8678bf6811k3b1');
+```
+
+### Delete Many
+
+```js
+const { data, error } = await kontenbase
+  .service('posts')
+  .deleteMany(['605a251d7b8678bf6811k3b1', '605a251d7b8678bf6811k3b2']);
 ```
 
 ### Link

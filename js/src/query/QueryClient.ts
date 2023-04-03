@@ -177,6 +177,28 @@ export default class QueryClient<T> {
     });
   }
 
+  async createMany(body: Partial<T>[]): Promise<MicrogenResponse<T>> {
+    return new Promise(async (resolve, _reject) => {
+      try {
+        const { data, status, statusText } = await axios.post<T[]>(
+          this.url,
+          body,
+          {
+            headers: this.headers,
+          },
+        );
+
+        resolve({
+          data,
+          status,
+          statusText,
+        });
+      } catch (error) {
+        resolve(this._error(error));
+      }
+    });
+  }
+
   async updateById(
     id: string,
     body: Partial<T>,
@@ -203,6 +225,28 @@ export default class QueryClient<T> {
     });
   }
 
+  async updateMany(body: Partial<T>[]): Promise<MicrogenResponse<T>> {
+    return new Promise(async (resolve, _reject) => {
+      try {
+        const { data, status, statusText } = await axios.patch<T[]>(
+          this.url,
+          body,
+          {
+            headers: this.headers,
+          },
+        );
+
+        resolve({
+          data,
+          status,
+          statusText,
+        });
+      } catch (error) {
+        resolve(this._error(error));
+      }
+    });
+  }
+
   async deleteById(id: string): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
@@ -211,6 +255,27 @@ export default class QueryClient<T> {
           {
             headers: this.headers,
             httpsAgent: httpsAgent,
+          },
+        );
+
+        resolve({
+          data,
+          status,
+          statusText,
+        });
+      } catch (error) {
+        resolve(this._error(error));
+      }
+    });
+  }
+
+  async deleteMany(body: string[]): Promise<MicrogenResponse<T>> {
+    return new Promise(async (resolve, _reject) => {
+      try {
+        const { data, status, statusText } = await axios.delete<T[]>(
+          `${this.url}?recordIds=${body.join(',')}`,
+          {
+            headers: this.headers,
           },
         );
 
