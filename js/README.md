@@ -157,7 +157,7 @@ const { data, error } = await microgen
 ### Delete Many
 
 ```js
-const { data, error } = await kontenbase
+const { data, error } = await microgen
   .service('posts')
   .deleteMany(['605a251d7b8678bf6811k3b1', '605a251d7b8678bf6811k3b2']);
 ```
