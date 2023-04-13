@@ -4,9 +4,9 @@ import {
   StorageSingleResponse,
   Storage,
 } from './lib/types';
-import FormData from 'isomorphic-form-data';
+import FormData from 'form-data';
 import { AuthClient } from '../auth';
-import * as https from "https";
+import * as https from 'https';
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
@@ -83,7 +83,7 @@ export default class StorageClient {
               ...formHeaders,
               ...this._getHeaders(),
             },
-            httpsAgent:httpsAgent,
+            httpsAgent,
           },
         );
 
