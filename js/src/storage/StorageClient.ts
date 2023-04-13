@@ -83,7 +83,7 @@ export default class StorageClient {
               ...formHeaders,
               ...this._getHeaders(),
             },
-            httpsAgent: httpsAgent,
+            httpsAgent,
           },
         );
 
