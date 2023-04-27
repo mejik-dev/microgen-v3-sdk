@@ -105,6 +105,23 @@ describe('Client', () => {
     expect(response.token).toBe(token);
   });
 
+  test('verify token', async () => {
+    const token = microgen.auth.token();
+    const response = await microgen.auth.verifyToken();
+
+    expect(response.status).toBe(200);
+    expect(response.token).toBe(token);
+  });
+
+  test('change password', async () => {
+    const response = await microgen.auth.changePassword({
+      oldPassword: PASSWORD,
+      newPassword: PASSWORD,
+    });
+
+    expect(response.status).toBe(200);
+  });
+
   test('create', async () => {
     const response = await microgen
       .service<Todo>(SERVICE_NAME)
