@@ -6,13 +6,12 @@ import {
   SubscribeOption,
 } from './lib/types';
 import * as https from 'https';
+import Centrifuge from 'centrifuge';
+import WebSocket from 'isomorphic-ws';
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
-
-const Centrifuge = require('centrifuge');
-const WebSocket = require('isomorphic-ws');
 
 export default class RealtimeClient {
   protected option: RealtimeClientOption;
