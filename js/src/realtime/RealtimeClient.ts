@@ -5,13 +5,8 @@ import {
   RealtimeCallback,
   SubscribeOption,
 } from './lib/types';
-import * as https from 'https';
 import Centrifuge from 'centrifuge';
 import WebSocket from 'isomorphic-ws';
-
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
 
 export default class RealtimeClient {
   protected option: RealtimeClientOption;
@@ -52,7 +47,11 @@ export default class RealtimeClient {
         const getChannel = await axios.get(
           `${this.option.url}/channel/${this.option.apiKey}/${name}`,
           {
-            httpsAgent: httpsAgent,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import qs from 'qs';
 import { FieldClient } from '../field';
-import * as https from 'https';
 import {
   MicrogenResponse,
   MicrogenResponseFailure,
@@ -14,12 +13,9 @@ import {
   GetByIdOption,
 } from './lib/types';
 
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: true,
-});
-
 export default class QueryClient<T> {
   protected url: string;
+  protected isBrowser = typeof window !== 'undefined';
   protected headers: { [key: string]: string };
 
   public field: FieldClient<T>;
@@ -111,7 +107,11 @@ export default class QueryClient<T> {
           `${this.url}${query ? '?' + query : ''}`,
           {
             headers: this.headers,
-            httpsAgent: httpsAgent,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: true }),
           },
         );
 
@@ -139,7 +139,11 @@ export default class QueryClient<T> {
           `${this.url}/${id}${query ? '?' + query : ''}`,
           {
             headers: this.headers,
-            httpsAgent: httpsAgent,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: true }),
           },
         );
 
@@ -162,7 +166,11 @@ export default class QueryClient<T> {
           body,
           {
             headers: this.headers,
-            httpsAgent: httpsAgent,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: true }),
           },
         );
 
@@ -210,7 +218,11 @@ export default class QueryClient<T> {
           body,
           {
             headers: this.headers,
-            httpsAgent: httpsAgent,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: true }),
           },
         );
 
@@ -254,7 +266,11 @@ export default class QueryClient<T> {
           `${this.url}/${id}`,
           {
             headers: this.headers,
-            httpsAgent: httpsAgent,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: true }),
           },
         );
 
@@ -301,7 +317,11 @@ export default class QueryClient<T> {
           url: `${this.url}/${id}`,
           headers: this.headers,
           data: body,
-          httpsAgent: httpsAgent,
+          httpsAgent: this.isBrowser
+            ? undefined
+            : new (
+                await import('https')
+              ).Agent({ rejectUnauthorized: true }),
         });
 
         resolve({
@@ -326,7 +346,11 @@ export default class QueryClient<T> {
           url: `${this.url}/${id}`,
           headers: this.headers,
           data: body,
-          httpsAgent: httpsAgent,
+          httpsAgent: this.isBrowser
+            ? undefined
+            : new (
+                await import('https')
+              ).Agent({ rejectUnauthorized: true }),
         });
 
         resolve({
@@ -348,7 +372,11 @@ export default class QueryClient<T> {
           `${this.url}/count${query ? '?' + query : ''}`,
           {
             headers: this.headers,
-            httpsAgent: httpsAgent,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: true }),
           },
         );
 

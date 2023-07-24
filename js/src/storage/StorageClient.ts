@@ -6,15 +6,11 @@ import {
 } from './lib/types';
 import FormData from 'form-data';
 import { AuthClient } from '../auth';
-import * as https from 'https';
-
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
 
 export default class StorageClient {
   protected url: string;
   protected auth: AuthClient;
+  protected isBrowser = typeof window !== 'undefined';
 
   constructor(url: string, auth: AuthClient) {
     this.url = url;
@@ -83,7 +79,11 @@ export default class StorageClient {
               ...formHeaders,
               ...this._getHeaders(),
             },
-            httpsAgent,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 

@@ -2,7 +2,6 @@ import axios from 'axios';
 import qs from 'qs';
 import { STORAGE_KEY } from './lib/constants';
 import { isBrowser } from './lib/helpers';
-import * as https from 'https';
 import {
   AuthResponseFailure,
   AuthResponse,
@@ -10,10 +9,6 @@ import {
   TokenResponse,
   GetUserOption,
 } from './lib/types';
-
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
 
 export default class AuthClient {
   protected url: string;
@@ -80,7 +75,11 @@ export default class AuthClient {
           `${this.url}/auth/login`,
           body,
           {
-            httpsAgent: httpsAgent,
+            httpsAgent: isBrowser()
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -111,7 +110,11 @@ export default class AuthClient {
           `${this.url}/auth/register`,
           body,
           {
-            httpsAgent: httpsAgent,
+            httpsAgent: isBrowser()
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -137,7 +140,11 @@ export default class AuthClient {
           `${this.url}/auth/user${query ? '?' + query : ''}`,
           {
             headers: this._headers(),
-            httpsAgent: httpsAgent,
+            httpsAgent: isBrowser()
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -161,7 +168,11 @@ export default class AuthClient {
           body,
           {
             headers: this._headers(),
-            httpsAgent: httpsAgent,
+            httpsAgent: isBrowser()
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -203,7 +214,11 @@ export default class AuthClient {
           null,
           {
             headers: this._headers(),
-            httpsAgent: httpsAgent,
+            httpsAgent: isBrowser()
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
