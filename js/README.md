@@ -194,7 +194,7 @@ const { data, error } = await microgen.service('posts').find();
 // -1 = descending
 const { data, error } = await microgen
   .service('posts')
-  .find({ sort: { name: 1 } });
+  .find({ sort: [{ name: 1 }] });
 ```
 
 ```js
