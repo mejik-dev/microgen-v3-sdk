@@ -11,4 +11,12 @@ export type MicrogenClientOptions = {
    * secure protocol
    */
   isSecure?: boolean;
+  /**
+   * Dedicated Microgen Query URL
+   */
+  queryUrl?: string;
+  /**
+   * Dedicated Microgen Stream URL
+   */
+  streamUrl?: string;
 };

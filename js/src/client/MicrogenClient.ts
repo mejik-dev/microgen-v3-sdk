@@ -27,8 +27,19 @@ export default class MicrogenClient {
       protocol = 'https';
     }
 
-    this.queryUrl = `${protocol}://database-query.${host}/api/v1/${options.apiKey}`;
-    this.realtimeUrl = `${protocol}://database-stream.${host}`;
+    let queryUrl = `${protocol}://database-query.${host}/api/v1/`
+    let streamUrl = `${protocol}://database-stream.${host}`
+
+    if (options.queryUrl) {
+      queryUrl = options.queryUrl
+    }
+
+    if (options.streamUrl) {
+      streamUrl = options.streamUrl
+    }
+
+    this.queryUrl = `${queryUrl}${options.apiKey}`;
+    this.realtimeUrl = streamUrl;
     this.apiKey = options.apiKey;
     this.headers = {};
     this.auth = this._initAuth();
