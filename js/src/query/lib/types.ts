@@ -15,7 +15,6 @@ interface MicrogenResponseSuccess<T> extends MicrogenResponseBase {
 export interface MicrogenResponseFailure extends MicrogenResponseBase {
   data?: null;
   error?: MicrogenError;
-  z;
 }
 
 interface Pagination {
