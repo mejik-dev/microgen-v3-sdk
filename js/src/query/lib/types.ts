@@ -15,6 +15,7 @@ interface MicrogenResponseSuccess<T> extends MicrogenResponseBase {
 export interface MicrogenResponseFailure extends MicrogenResponseBase {
   data?: null;
   error?: MicrogenError;
+  z;
 }
 
 interface Pagination {
@@ -80,6 +81,12 @@ type Where<T> =
           }
         | {
             ['$gte']?: number;
+          }
+        | {
+            ['isEmpty']?: boolean;
+          }
+        | {
+            ['isNotEmpty']?: boolean;
           };
     };
 
