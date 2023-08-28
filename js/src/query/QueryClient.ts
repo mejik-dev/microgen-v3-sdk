@@ -111,7 +111,7 @@ export default class QueryClient<T> {
               ? undefined
               : new (
                   await import('https')
-                ).Agent({ rejectUnauthorized: true }),
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -143,7 +143,7 @@ export default class QueryClient<T> {
               ? undefined
               : new (
                   await import('https')
-                ).Agent({ rejectUnauthorized: true }),
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -170,7 +170,7 @@ export default class QueryClient<T> {
               ? undefined
               : new (
                   await import('https')
-                ).Agent({ rejectUnauthorized: true }),
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -222,7 +222,7 @@ export default class QueryClient<T> {
               ? undefined
               : new (
                   await import('https')
-                ).Agent({ rejectUnauthorized: true }),
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -270,7 +270,7 @@ export default class QueryClient<T> {
               ? undefined
               : new (
                   await import('https')
-                ).Agent({ rejectUnauthorized: true }),
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -321,7 +321,7 @@ export default class QueryClient<T> {
             ? undefined
             : new (
                 await import('https')
-              ).Agent({ rejectUnauthorized: true }),
+              ).Agent({ rejectUnauthorized: false }),
         });
 
         resolve({
@@ -350,7 +350,7 @@ export default class QueryClient<T> {
             ? undefined
             : new (
                 await import('https')
-              ).Agent({ rejectUnauthorized: true }),
+              ).Agent({ rejectUnauthorized: false }),
         });
 
         resolve({
@@ -376,7 +376,7 @@ export default class QueryClient<T> {
               ? undefined
               : new (
                   await import('https')
-                ).Agent({ rejectUnauthorized: true }),
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
