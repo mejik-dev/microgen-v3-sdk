@@ -53,7 +53,7 @@ export default class QueryClient<T> {
     };
   }
 
-  private _filter(option?: FindOption<T>): string {
+  private _filter<T = any>(option?: FindOption<T>): string {
     let query = '';
     if (option) {
       let filter: any = {};
@@ -99,10 +99,10 @@ export default class QueryClient<T> {
     return query;
   }
 
-  async find(option?: FindOption<T>): Promise<MicrogenResponse<T>> {
+  async find<T = any>(option?: FindOption<T>): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
-        const query = this._filter(option);
+        const query = this._filter<T>(option);
         const { data, status, statusText, headers } = await axios.get<T[]>(
           `${this.url}${query ? '?' + query : ''}`,
           {
@@ -128,7 +128,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async getById(
+  async getById<T = any>(
     id: string,
     option?: GetByIdOption<T>,
   ): Promise<MicrogenSingleResponse<T>> {
@@ -158,7 +158,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async create(body: Partial<T>): Promise<MicrogenSingleResponse<T>> {
+  async create<T = any>(body: Partial<T>): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.post<T>(
@@ -185,7 +185,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async createMany(body: Partial<T>[]): Promise<MicrogenResponse<T>> {
+  async createMany<T = any>(body: Partial<T>[]): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.post<T[]>(
@@ -207,7 +207,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async updateById(
+  async updateById<T = any>(
     id: string,
     body: Partial<T>,
   ): Promise<MicrogenSingleResponse<T>> {
@@ -237,7 +237,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async updateMany(body: Partial<T>[]): Promise<MicrogenResponse<T>> {
+  async updateMany<T = any>(body: Partial<T>[]): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.patch<T[]>(
@@ -306,7 +306,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async link(
+  async link<T = any>(
     id: string,
     body: { [key: string]: string },
   ): Promise<MicrogenSingleResponse<T>> {
@@ -335,7 +335,7 @@ export default class QueryClient<T> {
     });
   }
 
-  async unlink(
+  async unlink<T = any>(
     id: string,
     body: { [key: string]: string },
   ): Promise<MicrogenSingleResponse<T>> {
@@ -364,7 +364,9 @@ export default class QueryClient<T> {
     });
   }
 
-  async count(option?: CountOption<T>): Promise<MicrogenResponseCount> {
+  async count<T = any>(
+    option?: CountOption<T>,
+  ): Promise<MicrogenResponseCount> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
