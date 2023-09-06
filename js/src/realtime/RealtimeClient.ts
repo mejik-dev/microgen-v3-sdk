@@ -58,7 +58,7 @@ export default class RealtimeClient {
         let filter = '';
 
         if (where) {
-          filter = ':' + qs.stringify(where, { encode: false });
+          filter = ':' + qs.stringify(where, { encodeValuesOnly: true });
         }
 
         const channel = `${getChannel.data.name}:${event || '*'}${filter}`;
