@@ -99,14 +99,19 @@ export default class QueryClient<T> {
     return query;
   }
 
-  async find(option?: FindOption<T>): Promise<MicrogenResponse<T>> {
+  async find(
+    option?: FindOption<T>,
+    token?: string,
+  ): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
         const { data, status, statusText, headers } = await axios.get<T[]>(
           `${this.url}${query ? '?' + query : ''}`,
           {
-            headers: this.headers,
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this.headers,
             httpsAgent: this.isBrowser
               ? undefined
               : new (
@@ -131,6 +136,7 @@ export default class QueryClient<T> {
   async getById(
     id: string,
     option?: GetByIdOption<T>,
+    token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
@@ -138,7 +144,9 @@ export default class QueryClient<T> {
         const { data, status, statusText } = await axios.get<T>(
           `${this.url}/${id}${query ? '?' + query : ''}`,
           {
-            headers: this.headers,
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this.headers,
             httpsAgent: this.isBrowser
               ? undefined
               : new (
@@ -158,14 +166,19 @@ export default class QueryClient<T> {
     });
   }
 
-  async create(body: Partial<T>): Promise<MicrogenSingleResponse<T>> {
+  async create(
+    body: Partial<T>,
+    token?: string,
+  ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.post<T>(
           this.url,
           body,
           {
-            headers: this.headers,
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this.headers,
             httpsAgent: this.isBrowser
               ? undefined
               : new (
@@ -185,14 +198,24 @@ export default class QueryClient<T> {
     });
   }
 
-  async createMany(body: Partial<T>[]): Promise<MicrogenResponse<T>> {
+  async createMany(
+    body: Partial<T>[],
+    token?: string,
+  ): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.post<T[]>(
           this.url,
           body,
           {
-            headers: this.headers,
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this.headers,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -210,6 +233,7 @@ export default class QueryClient<T> {
   async updateById(
     id: string,
     body: Partial<T>,
+    token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
@@ -217,7 +241,9 @@ export default class QueryClient<T> {
           `${this.url}/${id}`,
           body,
           {
-            headers: this.headers,
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this.headers,
             httpsAgent: this.isBrowser
               ? undefined
               : new (
@@ -237,35 +263,19 @@ export default class QueryClient<T> {
     });
   }
 
-  async updateMany(body: Partial<T>[]): Promise<MicrogenResponse<T>> {
+  async updateMany(
+    body: Partial<T>[],
+    token?: string,
+  ): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.patch<T[]>(
           this.url,
           body,
           {
-            headers: this.headers,
-          },
-        );
-
-        resolve({
-          data,
-          status,
-          statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
-  }
-
-  async deleteById(id: string): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
-      try {
-        const { data, status, statusText } = await axios.delete<T>(
-          `${this.url}/${id}`,
-          {
-            headers: this.headers,
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this.headers,
             httpsAgent: this.isBrowser
               ? undefined
               : new (
@@ -285,13 +295,54 @@ export default class QueryClient<T> {
     });
   }
 
-  async deleteMany(body: string[]): Promise<MicrogenResponse<T>> {
+  async deleteById(
+    id: string,
+    token?: string,
+  ): Promise<MicrogenSingleResponse<T>> {
+    return new Promise(async (resolve, _reject) => {
+      try {
+        const { data, status, statusText } = await axios.delete<T>(
+          `${this.url}/${id}`,
+          {
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this.headers,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
+          },
+        );
+
+        resolve({
+          data,
+          status,
+          statusText,
+        });
+      } catch (error) {
+        resolve(this._error(error));
+      }
+    });
+  }
+
+  async deleteMany(
+    body: string[],
+    token?: string,
+  ): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.delete<T[]>(
           `${this.url}?recordIds=${body.join(',')}`,
           {
-            headers: this.headers,
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this.headers,
+            httpsAgent: this.isBrowser
+              ? undefined
+              : new (
+                  await import('https')
+                ).Agent({ rejectUnauthorized: false }),
           },
         );
 
@@ -309,19 +360,20 @@ export default class QueryClient<T> {
   async link(
     id: string,
     body: { [key: string]: string },
+    token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.request<T>({
           method: 'LINK',
           url: `${this.url}/${id}`,
-          headers: this.headers,
-          data: body,
+          headers: token ? { authorization: `Bearer ${token}` } : this.headers,
           httpsAgent: this.isBrowser
             ? undefined
             : new (
                 await import('https')
               ).Agent({ rejectUnauthorized: false }),
+          data: body,
         });
 
         resolve({
@@ -338,19 +390,20 @@ export default class QueryClient<T> {
   async unlink(
     id: string,
     body: { [key: string]: string },
+    token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.request<T>({
           method: 'UNLINK',
           url: `${this.url}/${id}`,
-          headers: this.headers,
-          data: body,
+          headers: token ? { authorization: `Bearer ${token}` } : this.headers,
           httpsAgent: this.isBrowser
             ? undefined
             : new (
                 await import('https')
               ).Agent({ rejectUnauthorized: false }),
+          data: body,
         });
 
         resolve({
@@ -364,14 +417,19 @@ export default class QueryClient<T> {
     });
   }
 
-  async count(option?: CountOption<T>): Promise<MicrogenResponseCount> {
+  async count(
+    option?: CountOption<T>,
+    token?: string,
+  ): Promise<MicrogenResponseCount> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
         const { data, status, statusText } = await axios.get<MicrogenCount>(
           `${this.url}/count${query ? '?' + query : ''}`,
           {
-            headers: this.headers,
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this.headers,
             httpsAgent: this.isBrowser
               ? undefined
               : new (
