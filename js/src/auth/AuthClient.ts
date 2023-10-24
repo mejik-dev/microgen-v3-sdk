@@ -132,14 +132,19 @@ export default class AuthClient {
     });
   }
 
-  async user<T = any>(option?: GetUserOption<T>): Promise<ProfileResponse<T>> {
+  async user<T = any>(
+    option?: GetUserOption<T>,
+    token?: string,
+  ): Promise<ProfileResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
         const { data, status, statusText } = await axios.get<T>(
           `${this.url}/auth/user${query ? '?' + query : ''}`,
           {
-            headers: this._headers(),
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this._headers(),
             httpsAgent: isBrowser()
               ? undefined
               : new (
@@ -160,14 +165,19 @@ export default class AuthClient {
     });
   }
 
-  async update<T = any>(body: Partial<T>): Promise<ProfileResponse<T>> {
+  async update<T = any>(
+    body: Partial<T>,
+    token?: string,
+  ): Promise<ProfileResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.patch<T>(
           `${this.url}/auth/user`,
           body,
           {
-            headers: this._headers(),
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this._headers(),
             httpsAgent: isBrowser()
               ? undefined
               : new (
@@ -206,14 +216,16 @@ export default class AuthClient {
     this._setToken(token);
   }
 
-  async logout<T = any>(): Promise<AuthResponse<T>> {
+  async logout<T = any>(token?: string): Promise<AuthResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.post<TokenResponse<T>>(
           `${this.url}/auth/logout`,
           null,
           {
-            headers: this._headers(),
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this._headers(),
             httpsAgent: isBrowser()
               ? undefined
               : new (
@@ -236,14 +248,16 @@ export default class AuthClient {
     });
   }
 
-  async verifyToken<T = any>(): Promise<AuthResponse<T>> {
+  async verifyToken<T = any>(token?: string): Promise<AuthResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
         const { data, status, statusText } = await axios.post<TokenResponse<T>>(
           `${this.url}/auth/verify-token`,
           null,
           {
-            headers: this._headers(),
+            headers: token
+              ? { authorization: `Bearer ${token}` }
+              : this._headers(),
           },
         );
 
@@ -260,10 +274,13 @@ export default class AuthClient {
     });
   }
 
-  async changePassword(body: {
-    oldPassword: string;
-    newPassword: string;
-  }): Promise<{
+  async changePassword(
+    body: {
+      oldPassword: string;
+      newPassword: string;
+    },
+    token?: string,
+  ): Promise<{
     message?: string;
     error?: any;
     status: number;
@@ -274,7 +291,9 @@ export default class AuthClient {
         const { data, status, statusText } = await axios.post<{
           message: string;
         }>(`${this.url}/auth/change-password`, body, {
-          headers: this._headers(),
+          headers: token
+            ? { authorization: `Bearer ${token}` }
+            : this._headers(),
         });
 
         const message = data.message;
