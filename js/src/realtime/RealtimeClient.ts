@@ -7,7 +7,7 @@ import {
 } from './lib/types';
 import Centrifuge from 'centrifuge';
 import WebSocket from 'isomorphic-ws';
-import { httpsAgent } from '../auth/lib/helpers';
+import { httpsAgent } from './lib/helpers';
 
 export default class RealtimeClient {
   protected option: RealtimeClientOption;

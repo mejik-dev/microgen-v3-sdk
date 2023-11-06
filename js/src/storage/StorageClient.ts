@@ -6,7 +6,7 @@ import {
 } from './lib/types';
 import FormData from 'form-data';
 import { AuthClient } from '../auth';
-import { httpsAgent } from '../auth/lib/helpers';
+import { httpsAgent } from './lib/helpers';
 
 export default class StorageClient {
   protected url: string;

@@ -12,7 +12,7 @@ import {
   CountOption,
   GetByIdOption,
 } from './lib/types';
-import { httpsAgent } from '../auth/lib/helpers';
+import { httpsAgent } from './lib/helpers';
 
 export default class QueryClient<T> {
   protected url: string;

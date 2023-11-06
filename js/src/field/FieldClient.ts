@@ -6,7 +6,7 @@ import {
   FieldResponseFailure,
   FieldSingleResponse,
 } from './lib/types';
-import { httpsAgent } from '../auth/lib/helpers';
+import { httpsAgent } from './lib/helpers';
 
 export default class FieldClient<T> {
   protected url: string;
