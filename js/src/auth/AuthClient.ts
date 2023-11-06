@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import { STORAGE_KEY } from './lib/constants';
-import { httpsAgent } from './lib/helpers';
+import httpsAgent from './lib/httpsAgent';
 import {
   AuthResponseFailure,
   AuthResponse,
