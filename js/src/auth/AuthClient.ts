@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import { STORAGE_KEY } from './lib/constants';
-import { isBrowser } from './lib/helpers';
+import { httpsAgent } from './lib/helpers';
 import {
   AuthResponseFailure,
   AuthResponse,
@@ -75,11 +75,7 @@ export default class AuthClient {
           `${this.url}/auth/login`,
           body,
           {
-            httpsAgent: isBrowser()
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -110,11 +106,7 @@ export default class AuthClient {
           `${this.url}/auth/register`,
           body,
           {
-            httpsAgent: isBrowser()
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -145,11 +137,7 @@ export default class AuthClient {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this._headers(),
-            httpsAgent: isBrowser()
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -178,11 +166,7 @@ export default class AuthClient {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this._headers(),
-            httpsAgent: isBrowser()
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -226,11 +210,7 @@ export default class AuthClient {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this._headers(),
-            httpsAgent: isBrowser()
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -315,20 +295,20 @@ export default class AuthClient {
   }
 
   private _setToken(token: string) {
-    if (isBrowser()) {
+    if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.setItem(STORAGE_KEY, token);
     }
   }
 
   private _removeToken() {
     this.currentToken = null;
-    if (isBrowser()) {
+    if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.removeItem(STORAGE_KEY);
     }
   }
 
   private _initToken() {
-    if (isBrowser()) {
+    if (typeof window !== 'undefined' && window.localStorage) {
       const token = window.localStorage.getItem(STORAGE_KEY);
       if (token) {
         this.currentToken = token;

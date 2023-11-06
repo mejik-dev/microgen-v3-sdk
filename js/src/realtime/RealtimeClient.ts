@@ -7,10 +7,10 @@ import {
 } from './lib/types';
 import Centrifuge from 'centrifuge';
 import WebSocket from 'isomorphic-ws';
+import { httpsAgent } from '../auth/lib/helpers';
 
 export default class RealtimeClient {
   protected option: RealtimeClientOption;
-  protected isBrowser = typeof window !== 'undefined';
   subcriptions = new Map();
 
   constructor(option: RealtimeClientOption) {
@@ -22,7 +22,7 @@ export default class RealtimeClient {
       this.option.apiKey
     }/websocket${token ? `?token=${token}` : ''}`;
     return new Centrifuge(url, {
-      websocket: this.isBrowser ? null : WebSocket,
+      websocket: typeof window !== 'undefined' ? null : WebSocket,
       disableWithCredentials: false,
     });
   }
@@ -47,11 +47,7 @@ export default class RealtimeClient {
         const getChannel = await axios.get(
           `${this.option.url}/channel/${this.option.apiKey}/${name}`,
           {
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 

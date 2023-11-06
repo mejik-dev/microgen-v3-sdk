@@ -6,11 +6,11 @@ import {
   FieldResponseFailure,
   FieldSingleResponse,
 } from './lib/types';
+import { httpsAgent } from '../auth/lib/helpers';
 
 export default class FieldClient<T> {
   protected url: string;
   protected headers: { [key: string]: string };
-  protected isBrowser = typeof window !== 'undefined';
 
   constructor(url: string, options: FieldClientOption) {
     this.url = `${url}/fields`;
@@ -48,11 +48,7 @@ export default class FieldClient<T> {
           this.url,
           {
             headers: this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -74,11 +70,7 @@ export default class FieldClient<T> {
           `${this.url}/${id}`,
           {
             headers: this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 

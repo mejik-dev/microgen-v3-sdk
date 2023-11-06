@@ -12,10 +12,10 @@ import {
   CountOption,
   GetByIdOption,
 } from './lib/types';
+import { httpsAgent } from '../auth/lib/helpers';
 
 export default class QueryClient<T> {
   protected url: string;
-  protected isBrowser = typeof window !== 'undefined';
   protected headers: { [key: string]: string };
 
   public field: FieldClient<T>;
@@ -112,11 +112,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -147,11 +143,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -179,11 +171,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -211,11 +199,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -244,11 +228,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -276,11 +256,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -307,11 +283,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -338,11 +310,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
@@ -368,11 +336,7 @@ export default class QueryClient<T> {
           method: 'LINK',
           url: `${this.url}/${id}`,
           headers: token ? { authorization: `Bearer ${token}` } : this.headers,
-          httpsAgent: this.isBrowser
-            ? undefined
-            : new (
-                await import('https')
-              ).Agent({ rejectUnauthorized: false }),
+          httpsAgent: httpsAgent(),
           data: body,
         });
 
@@ -398,11 +362,7 @@ export default class QueryClient<T> {
           method: 'UNLINK',
           url: `${this.url}/${id}`,
           headers: token ? { authorization: `Bearer ${token}` } : this.headers,
-          httpsAgent: this.isBrowser
-            ? undefined
-            : new (
-                await import('https')
-              ).Agent({ rejectUnauthorized: false }),
+          httpsAgent: httpsAgent(),
           data: body,
         });
 
@@ -430,11 +390,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: this.isBrowser
-              ? undefined
-              : new (
-                  await import('https')
-                ).Agent({ rejectUnauthorized: false }),
+            httpsAgent: httpsAgent(),
           },
         );
 
