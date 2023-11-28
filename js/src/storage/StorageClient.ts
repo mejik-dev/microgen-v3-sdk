@@ -6,7 +6,7 @@ import {
 } from './lib/types';
 import FormData from 'form-data';
 import { AuthClient } from '../auth';
-import httpsAgent from './lib/httpsAgent';
+import hA from './lib/httpsAgent';
 
 export default class StorageClient {
   protected url: string;
@@ -71,6 +71,7 @@ export default class StorageClient {
         if (typeof form.getHeaders == 'function') {
           formHeaders = form.getHeaders();
         }
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.post<Storage>(
           this.url + '/upload',
           form,
@@ -79,7 +80,7 @@ export default class StorageClient {
               ...formHeaders,
               ...this._getHeaders(),
             },
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 

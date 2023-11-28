@@ -6,7 +6,7 @@ import {
   FieldResponseFailure,
   FieldSingleResponse,
 } from './lib/types';
-import httpsAgent from './lib/httpsAgent';
+import hA from './lib/httpsAgent';
 
 export default class FieldClient<T> {
   protected url: string;
@@ -44,11 +44,12 @@ export default class FieldClient<T> {
   async find(): Promise<FieldResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.get<Field<T>[]>(
           this.url,
           {
             headers: this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -66,11 +67,12 @@ export default class FieldClient<T> {
   async getById(id: string): Promise<FieldSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.get<Field<T>>(
           `${this.url}/${id}`,
           {
             headers: this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 

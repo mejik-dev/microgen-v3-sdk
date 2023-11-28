@@ -7,7 +7,7 @@ import {
 } from './lib/types';
 import Centrifuge from 'centrifuge';
 import WebSocket from 'isomorphic-ws';
-import httpsAgent from './lib/httpsAgent';
+import hA from './lib/httpsAgent';
 
 export default class RealtimeClient {
   protected option: RealtimeClientOption;
@@ -44,11 +44,10 @@ export default class RealtimeClient {
           lastSubscribe.unsubscribe();
         }
 
+        const httpsAgent = await hA();
         const getChannel = await axios.get(
           `${this.option.url}/channel/${this.option.apiKey}/${name}`,
-          {
-            httpsAgent: httpsAgent(),
-          },
+          { httpsAgent },
         );
 
         let filter = '';

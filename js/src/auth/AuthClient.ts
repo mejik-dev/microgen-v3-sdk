@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import { STORAGE_KEY } from './lib/constants';
-import httpsAgent from './lib/httpsAgent';
+import hA from './lib/httpsAgent';
 import {
   AuthResponseFailure,
   AuthResponse,
@@ -71,12 +71,11 @@ export default class AuthClient {
   }): Promise<AuthResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.post<TokenResponse<T>>(
           `${this.url}/auth/login`,
           body,
-          {
-            httpsAgent: httpsAgent(),
-          },
+          { httpsAgent },
         );
 
         this.saveToken(data.token);
@@ -102,12 +101,11 @@ export default class AuthClient {
   }): Promise<AuthResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.post<TokenResponse<T>>(
           `${this.url}/auth/register`,
           body,
-          {
-            httpsAgent: httpsAgent(),
-          },
+          { httpsAgent },
         );
 
         this.saveToken(data.token);
@@ -131,13 +129,14 @@ export default class AuthClient {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.get<T>(
           `${this.url}/auth/user${query ? '?' + query : ''}`,
           {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this._headers(),
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -159,6 +158,7 @@ export default class AuthClient {
   ): Promise<ProfileResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.patch<T>(
           `${this.url}/auth/user`,
           body,
@@ -166,7 +166,7 @@ export default class AuthClient {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this._headers(),
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -203,6 +203,7 @@ export default class AuthClient {
   async logout<T = any>(token?: string): Promise<AuthResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.post<TokenResponse<T>>(
           `${this.url}/auth/logout`,
           null,
@@ -210,7 +211,7 @@ export default class AuthClient {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this._headers(),
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 

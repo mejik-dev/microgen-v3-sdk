@@ -12,7 +12,7 @@ import {
   CountOption,
   GetByIdOption,
 } from './lib/types';
-import httpsAgent from './lib/httpsAgent';
+import hA from './lib/httpsAgent';
 
 export default class QueryClient<T> {
   protected url: string;
@@ -106,13 +106,14 @@ export default class QueryClient<T> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
+        const httpsAgent = await hA();
         const { data, status, statusText, headers } = await axios.get<T[]>(
           `${this.url}${query ? '?' + query : ''}`,
           {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -137,13 +138,14 @@ export default class QueryClient<T> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.get<T>(
           `${this.url}/${id}${query ? '?' + query : ''}`,
           {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -164,6 +166,7 @@ export default class QueryClient<T> {
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.post<T>(
           this.url,
           body,
@@ -171,7 +174,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -192,6 +195,7 @@ export default class QueryClient<T> {
   ): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.post<T[]>(
           this.url,
           body,
@@ -199,7 +203,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -221,6 +225,7 @@ export default class QueryClient<T> {
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.patch<T>(
           `${this.url}/${id}`,
           body,
@@ -228,7 +233,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -249,6 +254,7 @@ export default class QueryClient<T> {
   ): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.patch<T[]>(
           this.url,
           body,
@@ -256,7 +262,7 @@ export default class QueryClient<T> {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -277,13 +283,14 @@ export default class QueryClient<T> {
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.delete<T>(
           `${this.url}/${id}`,
           {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -304,13 +311,14 @@ export default class QueryClient<T> {
   ): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.delete<T[]>(
           `${this.url}?recordIds=${body.join(',')}`,
           {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
@@ -332,11 +340,12 @@ export default class QueryClient<T> {
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.request<T>({
           method: 'LINK',
           url: `${this.url}/${id}`,
           headers: token ? { authorization: `Bearer ${token}` } : this.headers,
-          httpsAgent: httpsAgent(),
+          httpsAgent,
           data: body,
         });
 
@@ -358,11 +367,12 @@ export default class QueryClient<T> {
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve, _reject) => {
       try {
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.request<T>({
           method: 'UNLINK',
           url: `${this.url}/${id}`,
           headers: token ? { authorization: `Bearer ${token}` } : this.headers,
-          httpsAgent: httpsAgent(),
+          httpsAgent,
           data: body,
         });
 
@@ -384,13 +394,14 @@ export default class QueryClient<T> {
     return new Promise(async (resolve, _reject) => {
       try {
         const query = this._filter(option);
+        const httpsAgent = await hA();
         const { data, status, statusText } = await axios.get<MicrogenCount>(
           `${this.url}/count${query ? '?' + query : ''}`,
           {
             headers: token
               ? { authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent: httpsAgent(),
+            httpsAgent,
           },
         );
 
