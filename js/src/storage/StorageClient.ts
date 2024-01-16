@@ -62,6 +62,7 @@ export default class StorageClient {
       | URLSearchParams
       | string,
     fileName?: string,
+    token?: string,
   ): Promise<StorageSingleResponse> {
     return new Promise(async (resolve, _reject) => {
       try {
@@ -76,10 +77,9 @@ export default class StorageClient {
           this.url + '/upload',
           form,
           {
-            headers: {
-              ...formHeaders,
-              ...this._getHeaders(),
-            },
+            headers: token
+              ? { ...formHeaders, authorization: `Bearer ${token}` }
+              : { ...formHeaders, ...this._getHeaders() },
             httpsAgent,
           },
         );
