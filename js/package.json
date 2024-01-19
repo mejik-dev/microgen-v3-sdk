@@ -12,42 +12,50 @@
   },
   "homepage": "https://microgen.id",
   "scripts": {
-    "build": "npm run build:main && npm run build:module && npm run build:umd",
-    "build:main": "tsc -p tsconfig.json",
-    "build:module": "tsc -p tsconfig.module.json",
+    "build": "npm run build:module && npm run build:main && npm run build:umd",
+    "build:module": "tsc -p tsconfig.json",
+    "build:main": "tsc -p tsconfig.main.json",
     "build:umd": "webpack",
     "format": "prettier --write \"{src,test}/**/*.ts\"",
     "test": "jest",
     "test:watch": "jest --watch --verbose false --silent false"
   },
-  "keywords": [],
+  "engines": {
+    "node": ">=16"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "sdk",
+    "microgen",
+    "microgen-client"
+  ],
   "author": "Mejik",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^29.5.0",
-    "@types/node-fetch": "^3.0.3",
-    "@types/qs": "^6.9.7",
-    "@types/url-parse": "^1.4.8",
-    "@types/ws": "^8.5.5",
-    "@typescript-eslint/eslint-plugin": "^5.34.0",
-    "@typescript-eslint/parser": "^5.34.0",
-    "dotenv": "^10.0.0",
-    "jest": "^29.5.0",
-    "prettier": "^2.6.2",
-    "ts-jest": "^29.1.0",
-    "ts-loader": "^9.2.8",
-    "typescript": "^5.0.3",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.9.2"
+    "@types/jest": "29.5.11",
+    "@types/qs": "6.9.11",
+    "@types/ws": "8.5.10",
+    "@typescript-eslint/eslint-plugin": "6.19.0",
+    "@typescript-eslint/parser": "6.19.0",
+    "dotenv": "10.0.0",
+    "jest": "29.7.0",
+    "prettier": "3.2.4",
+    "ts-jest": "29.1.1",
+    "ts-loader": "9.5.1",
+    "typescript": "5.3.3",
+    "webpack": "5.89.0",
+    "webpack-cli": "5.1.4"
   },
   "dependencies": {
-    "axios": "^0.27.2",
-    "centrifuge": "^2.8.5",
-    "form-data": "^4.0.0",
-    "isomorphic-ws": "^5.0.0",
-    "node-polyfill-webpack-plugin": "^2.0.1",
-    "qs": "^6.10.2",
-    "ws": "^8.13.0"
+    "axios": "1.6.5",
+    "centrifuge": "2.8.5",
+    "form-data": "4.0.0",
+    "isomorphic-ws": "5.0.0",
+    "node-polyfill-webpack-plugin": "3.0.0",
+    "qs": "6.11.2",
+    "ws": "8.16.0"
   },
   "jsdelivr": "dist/umd/microgen-v3.js",
   "unpkg": "dist/umd/microgen-v3.js"

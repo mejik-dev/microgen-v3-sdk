@@ -78,7 +78,7 @@ describe('Filter', () => {
       lookup: '*',
     });
 
-    expect(result).toBe('$lookup=*');
+    expect(result).toBe('$lookup=%2A');
   });
 
   test('lookup into all fields but only show ids', async () => {
@@ -86,7 +86,7 @@ describe('Filter', () => {
       lookup: { _id: '*' },
     });
 
-    expect(result).toBe('$lookup[_id]=*');
+    expect(result).toBe('$lookup[_id]=%2A');
   });
 
   test('lookup into all fields and show all data', async () => {
@@ -94,7 +94,7 @@ describe('Filter', () => {
       lookup: { '*': '*' },
     });
 
-    expect(result).toBe('$lookup[*]=*');
+    expect(result).toBe('$lookup[*]=%2A');
   });
 
   test('$ne', async () => {

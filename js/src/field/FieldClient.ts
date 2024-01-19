@@ -24,8 +24,8 @@ export default class FieldClient<T> {
           message: (error.response.data as any)?.message
             ? (error.response.data as any).message
             : typeof error.response.data === 'object'
-            ? JSON.stringify(error.response.data)
-            : String(error.response.data),
+              ? JSON.stringify(error.response.data)
+              : String(error.response.data),
         },
         status: error.response.status,
         statusText: error.response.statusText,

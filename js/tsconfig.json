@@ -2,18 +2,17 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "module": "commonjs",
-    "outDir": "dist/main",
-    "rootDir": "src",
-    "sourceMap": true,
-    "target": "es6",
-    "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
-    "stripInternal": true,
-    "allowSyntheticDefaultImports": true
+    "lib": ["es2023", "dom"],
+    "module": "node16",
+    "moduleResolution": "node16",
+    "outDir": "dist/module",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022",
   },
-  "include": ["src"],
-  "exclude": ["node_modules/**/*.ts"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
