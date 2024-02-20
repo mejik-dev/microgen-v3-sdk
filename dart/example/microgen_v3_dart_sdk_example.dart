@@ -1,25 +1,26 @@
 import 'package:microgen_v3_dart_sdk/microgen_v3_dart_sdk.dart';
 
-final microgen = Microgen(apiKey: "3534482b-4bbd-4589-9a4c-01b645b26833");
+final microgen = Microgen(apiKey: "7de3e86f-9abc-493b-b400-4fff252844de");
 
 void main() async {
-  // final songs = await microgen.from('Songs').select();
-  // final songCount = await microgen.from('Songs').count();
-  // final songDetail =
-  //     await microgen.from('Songs').getById("63d3bbc2e7f13b31a67f3f69");
-  // final songInsert = await microgen.from('Songs').insert({'title': "hello3"});
-  final songDelete =
-      await microgen.from('Songs').deleteById("65addd88b78874abe1af9c8e");
+  final todos = await microgen.from('Todos').select();
+  final todoCount = await microgen.from('Todos').count();
+  final todoDetail =
+      await microgen.from('Todos').getById("63d3bbc2e7f13b31a67f3f69");
+  final todoInsert =
+      await microgen.from('Todos').insert({"name": "Task 2", "status": "Done"});
+  final todoDelete =
+      await microgen.from('Todos').deleteById("65d434476032769d31e8ff5d123");
 
   print('====================================');
-  // print('songs: ${songs}');
-  // print('------------------------------------');
-  // print('songs count: ${songCount}');
-  // print('------------------------------------');
-  // print('songs detail: ${songDetail}');
-  // print('------------------------------------');
-  // print('songs insert: ${songInsert}');
+  print('todos: ${todos}');
   print('------------------------------------');
-  print('songs delete: ${songDelete}');
+  print('songs count: ${todoCount}');
+  print('------------------------------------');
+  print('songs detail: ${todoDetail}');
+  print('------------------------------------');
+  print('todo insert: ${todoInsert}');
+  print('------------------------------------');
+  print('todo delete: ${todoDelete}');
   print('====================================');
 }
