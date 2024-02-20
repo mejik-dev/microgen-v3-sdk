@@ -37,7 +37,7 @@ final { data, status, error} = await microgen.from('Todos').count()
 Create a record.
 
 ```dart
-final { data, status, error} = await microgen.from('Todos').inser({"name": "Task 2", "status": "Done"})
+final { data, status, error} = await microgen.from('Todos').insert({"name": "Task 2", "status": "Done"})
 ```
 
 ### deleteById()

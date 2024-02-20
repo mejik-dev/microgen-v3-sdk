@@ -102,7 +102,7 @@ class DatabaseService {
 
     final url = Uri.parse('$_baseUrl/$id');
 
-    final request = http.Request('DELETE', url);
+    final request = http.Request('PATCH', url);
 
     if (_microgen.token != null) {
       request.headers['Authorization'] = 'Bearer ${_microgen.token}';
