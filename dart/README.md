@@ -2,7 +2,7 @@
 
 ### Try Run
 
-```bash
+```shell
 dart run example/microgen_v3_dart_sdk_example.dart
 ```
 
