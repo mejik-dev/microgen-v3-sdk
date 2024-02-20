@@ -11,6 +11,6 @@ class Microgen {
   late final String baseUrl;
 
   DatabaseService from(String table) {
-    return DatabaseService._(this, table);
+    return DatabaseService(this, table);
   }
 }
