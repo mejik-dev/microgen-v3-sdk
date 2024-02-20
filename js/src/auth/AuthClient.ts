@@ -92,7 +92,7 @@ export default class AuthClient {
     });
   }
 
-  async register<T = any>(body: {
+  async register<T = any>(body: Partial<T> & {
     firstName: string;
     lastName?: string;
     email: string;
