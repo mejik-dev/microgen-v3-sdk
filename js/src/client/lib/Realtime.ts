@@ -3,6 +3,8 @@ import {
   RealtimeClient,
   RealtimeCallback,
   SubscribeOption,
+  DisconnectCallback,
+  ConnectCallback,
 } from '../../realtime';
 
 export default class Realtime {
@@ -18,6 +20,8 @@ export default class Realtime {
     name: string,
     option: SubscribeOption<T>,
     callback: RealtimeCallback,
+    onDisconnect?: DisconnectCallback,
+    onConnect?: ConnectCallback,
   ): Promise<string> {
     return this._realtime.subscribe<T>(
       name,
@@ -27,6 +31,8 @@ export default class Realtime {
         token: option?.token ?? this._auth.token(),
       },
       callback,
+      onDisconnect,
+      onConnect,
     );
   }
 
