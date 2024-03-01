@@ -21,6 +21,8 @@ export interface RealtimeMessage {
 }
 
 export type RealtimeCallback = (m: RealtimeMessage) => any;
+export type DisconnectCallback = (ctx: any) => any;
+export type ConnectCallback = (ctx: any) => any;
 
 export type SubscribeOption<T> = {
   event: RealtimeEventTypes;

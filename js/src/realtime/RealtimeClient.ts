@@ -4,6 +4,8 @@ import {
   RealtimeClientOption,
   RealtimeCallback,
   SubscribeOption,
+  ConnectCallback,
+  DisconnectCallback,
 } from './lib/types';
 import Centrifuge from 'centrifuge';
 import WebSocket from 'isomorphic-ws';
@@ -31,6 +33,8 @@ export default class RealtimeClient {
     name: string,
     { token, event, where }: SubscribeOption<T>,
     callback: RealtimeCallback,
+    onDisconnect?: DisconnectCallback,
+    onConnect?: ConnectCallback,
   ): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
       try {
@@ -78,6 +82,15 @@ export default class RealtimeClient {
             },
           });
         });
+
+        if (onConnect != null) {
+          centrifuge.on('connect', onConnect);
+        }
+
+        if (onDisconnect != null) {
+          centrifuge.on('disconnect', onDisconnect);
+        }
+
         centrifuge.connect();
 
         this.subcriptions.set(key, centrifuge);
