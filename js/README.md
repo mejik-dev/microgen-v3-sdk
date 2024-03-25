@@ -351,6 +351,8 @@ const { data, error } = await microgen.storage.upload(
 - `CREATE_RECORD`
 - `UPDATE_RECORD`
 - `DELETE_RECORD`
+- `LINK_RECORD`
+- `UNLINK_RECORD`
 
 ### Subscribe
 
