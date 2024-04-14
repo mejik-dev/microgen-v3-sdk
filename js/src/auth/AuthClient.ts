@@ -1,6 +1,6 @@
 import qs from 'qs';
 import { STORAGE_KEY } from './lib/constants';
-import hA from './lib/httpsAgent';
+import httpsAgent from './lib/httpsAgent';
 import {
   AuthResponseFailure,
   AuthResponse,
@@ -91,14 +91,14 @@ export default class AuthClient {
   }): Promise<AuthResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const httpsAgent = await hA();
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher: httpsAgent,
+            dispatcher,
           }),
         );
         const data = (await res.json()) as TokenResponse<T>;
@@ -128,14 +128,14 @@ export default class AuthClient {
   ): Promise<AuthResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const httpsAgent = await hA();
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher: httpsAgent,
+            dispatcher,
           }),
         );
         const data = (await res.json()) as TokenResponse<T>;
@@ -161,14 +161,14 @@ export default class AuthClient {
     return new Promise(async (resolve) => {
       try {
         const query = this._filter(option);
-        const httpsAgent = await hA();
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/auth/user${query ? '?' + query : ''}`, {
             headers: token
               ? { ...this._headers(), Authorization: `Bearer ${token}` }
               : this._headers(),
             // @ts-expect-error
-            dispatcher: httpsAgent,
+            dispatcher,
           }),
         );
         const data = (await res.json()) as T;
@@ -191,7 +191,7 @@ export default class AuthClient {
   ): Promise<ProfileResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const httpsAgent = await hA();
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/auth/user`, {
             method: 'PATCH',
@@ -204,7 +204,7 @@ export default class AuthClient {
               : { ...this._headers(), 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher: httpsAgent,
+            dispatcher,
           }),
         );
         const data = (await res.json()) as T;
@@ -242,7 +242,7 @@ export default class AuthClient {
   logout<T = any>(token?: string): Promise<AuthResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const httpsAgent = await hA();
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/auth/logout`, {
             method: 'POST',
@@ -250,7 +250,7 @@ export default class AuthClient {
               ? { ...this._headers(), Authorization: `Bearer ${token}` }
               : this._headers(),
             // @ts-expect-error
-            dispatcher: httpsAgent,
+            dispatcher,
           }),
         );
         const data = (await res.json()) as TokenResponse<T>;
@@ -272,6 +272,7 @@ export default class AuthClient {
   verifyToken<T = any>(token?: string): Promise<AuthResponse<T>> {
     return new Promise(async (resolve) => {
       try {
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/auth/verify-token`, {
             method: 'POST',
@@ -279,7 +280,7 @@ export default class AuthClient {
               ? { ...this._headers(), Authorization: `Bearer ${token}` }
               : this._headers(),
             // @ts-expect-error
-            dispatcher: httpsAgent,
+            dispatcher,
           }),
         );
         const data = (await res.json()) as TokenResponse<T>;
@@ -311,6 +312,7 @@ export default class AuthClient {
   }> {
     return new Promise(async (resolve) => {
       try {
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/auth/change-password`, {
             method: 'POST',
@@ -323,7 +325,7 @@ export default class AuthClient {
               : { ...this._headers(), 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher: httpsAgent,
+            dispatcher,
           }),
         );
         const data = (await res.json()) as { message: string };
@@ -335,13 +337,7 @@ export default class AuthClient {
           statusText: res.statusText,
         });
       } catch (error) {
-        resolve({
-          error: {
-            message: 'Failed',
-          },
-          status: 500,
-          statusText: 'FAILED',
-        });
+        resolve(this._error(error));
       }
     });
   }

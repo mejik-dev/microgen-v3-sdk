@@ -8,7 +8,7 @@ import {
 } from './lib/types';
 import Centrifuge from 'centrifuge';
 import WebSocket from 'isomorphic-ws';
-import hA from './lib/httpsAgent';
+import httpsAgent from './lib/httpsAgent';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -78,13 +78,13 @@ export default class RealtimeClient {
           filter = ':' + qs.stringify(where, { encodeValuesOnly: true });
         }
 
-        const httpsAgent = await hA();
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(
             `${this.option.url}/channel/${this.option.apiKey}/${name}`,
             {
               // @ts-expect-error
-              dispatcher: httpsAgent,
+              dispatcher,
             },
           ),
         );

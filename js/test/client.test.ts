@@ -1,6 +1,6 @@
 import { MicrogenClient, createClient } from '../src';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const HOST = process.env.HOST || '';
 const API_KEY = process.env.API_KEY || '';
@@ -223,8 +223,8 @@ describe('Client', () => {
 
   test('upload', async () => {
     const filePath = path.join(__dirname, 'icon.png');
-    const file = fs.createReadStream(filePath);
-    const response = await microgen.storage.upload(file);
+    const file = await fs.openAsBlob(filePath);
+    const response = await microgen.storage.upload(file, 'icon.png');
 
     expect(response.status).toBe(200);
   });

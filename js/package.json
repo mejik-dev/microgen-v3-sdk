@@ -53,7 +53,6 @@
   },
   "dependencies": {
     "centrifuge": "2.8.5",
-    "form-data": "4.0.0",
     "isomorphic-ws": "5.0.0",
     "qs": "6.12.1",
     "undici": "6.13.0",

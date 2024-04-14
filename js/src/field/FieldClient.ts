@@ -5,7 +5,7 @@ import {
   FieldResponseFailure,
   FieldSingleResponse,
 } from './lib/types';
-import hA from './lib/httpsAgent';
+import httpsAgent from './lib/httpsAgent';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -64,12 +64,12 @@ export default class FieldClient<T> {
   find(): Promise<FieldResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const httpsAgent = await hA();
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(this.url, {
             headers: this.headers,
             // @ts-expect-error
-            dispatcher: httpsAgent,
+            dispatcher,
           }),
         );
         const data = (await res.json()) as Field<T>[];
@@ -88,12 +88,12 @@ export default class FieldClient<T> {
   getById(id: string): Promise<FieldSingleResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const httpsAgent = await hA();
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/${id}`, {
             headers: this.headers,
             // @ts-expect-error
-            dispatcher: httpsAgent,
+            dispatcher,
           }),
         );
         const data = (await res.json()) as Field<T>;

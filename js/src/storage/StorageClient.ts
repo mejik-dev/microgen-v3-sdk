@@ -3,9 +3,8 @@ import {
   StorageSingleResponse,
   Storage,
 } from './lib/types';
-import FormData from 'form-data';
 import { AuthClient } from '../auth';
-import hA from './lib/httpsAgent';
+import httpsAgent from './lib/httpsAgent';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -71,41 +70,34 @@ export default class StorageClient {
   }
 
   upload(
-    file:
-      | ArrayBuffer
-      | ArrayBufferView
-      | Blob
-      | Buffer
-      | File
-      | NodeJS.ReadableStream
-      | ReadableStream<Uint8Array>
-      | URLSearchParams
-      | string,
+    file: Blob | File,
     fileName?: string,
     token?: string,
   ): Promise<StorageSingleResponse> {
     return new Promise(async (resolve) => {
       try {
         const form = new FormData();
-        form.append('file', file, fileName);
-        let formHeaders = {};
-        if (typeof form.getHeaders == 'function') {
-          formHeaders = form.getHeaders();
+
+        if (file.constructor.name === 'Blob' && !fileName) {
+          throw new FailedHTTPResponse(
+            400,
+            'Bad Request',
+            'fileName is required',
+          );
         }
-        const httpsAgent = await hA();
+
+        form.set('file', file, fileName);
+
+        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/upload`, {
             method: 'POST',
             headers: token
-              ? {
-                  ...this._getHeaders(),
-                  Authorization: `Bearer ${token}`,
-                  ...formHeaders,
-                }
-              : { ...this._getHeaders(), ...formHeaders },
-            // @ts-expect-error
+              ? { ...this._getHeaders(), Authorization: `Bearer ${token}` }
+              : this._getHeaders(),
             body: form,
-            dispatcher: httpsAgent,
+            // @ts-expect-error
+            dispatcher,
           }),
         );
         const data = (await res.json()) as Storage;
