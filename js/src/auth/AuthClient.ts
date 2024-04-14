@@ -1,4 +1,3 @@
-import axios from 'axios';
 import qs from 'qs';
 import { STORAGE_KEY } from './lib/constants';
 import hA from './lib/httpsAgent';
@@ -9,6 +8,19 @@ import {
   TokenResponse,
   GetUserOption,
 } from './lib/types';
+
+class FailedHTTPResponse extends Error {
+  public status: number;
+  public statusText: string;
+  public data: any;
+
+  constructor(status: number, statusText: string, data: any = null) {
+    super(`${status}: ${statusText}`);
+    this.status = status;
+    this.statusText = statusText;
+    this.data = data;
+  }
+}
 
 export default class AuthClient {
   protected url: string;
@@ -27,27 +39,35 @@ export default class AuthClient {
   }
 
   private _error(error: any): AuthResponseFailure {
-    if (axios.isAxiosError(error) && error.response) {
+    if (error instanceof FailedHTTPResponse) {
       return {
         error: {
-          message: (error.response.data as any)?.message
-            ? (error.response.data as any).message
-            : typeof error.response.data === 'object'
-              ? JSON.stringify(error.response.data)
-              : String(error.response.data),
+          message: error.data,
         },
-        status: error.response.status,
-        statusText: error.response.statusText,
+        status: error.status,
+        statusText: error.statusText,
       };
     }
 
     return {
       error: {
-        message: 'Failed',
+        message: 'failed',
       },
       status: 500,
       statusText: 'FAILED',
     };
+  }
+
+  private async _checkResponse(response: Response) {
+    if (!response.ok) {
+      throw new FailedHTTPResponse(
+        response.status,
+        response.statusText,
+        await response.text(),
+      );
+    }
+
+    return response;
   }
 
   private _filter<T = any>(option?: GetUserOption<T>): string {
@@ -65,25 +85,30 @@ export default class AuthClient {
     return query;
   }
 
-  async login<T = any>(body: {
+  login<T = any>(body: {
     email: string;
     password: string;
   }): Promise<AuthResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.post<TokenResponse<T>>(
-          `${this.url}/auth/login`,
-          body,
-          { httpsAgent },
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as TokenResponse<T>;
 
         this.saveToken(data.token);
         const user = data.user;
         resolve({
           user,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
           token: data.token,
         });
       } catch (error) {
@@ -92,28 +117,35 @@ export default class AuthClient {
     });
   }
 
-  async register<T = any>(body: Partial<T> & {
-    firstName: string;
-    lastName?: string;
-    email: string;
-    password: string;
-    role?: string;
-  }): Promise<AuthResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+  register<T = any>(
+    body: Partial<T> & {
+      firstName: string;
+      lastName?: string;
+      email: string;
+      password: string;
+      role?: string;
+    },
+  ): Promise<AuthResponse<T>> {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.post<TokenResponse<T>>(
-          `${this.url}/auth/register`,
-          body,
-          { httpsAgent },
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as TokenResponse<T>;
 
         this.saveToken(data.token);
         const user = data.user;
         resolve({
           user,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
           token: data.token,
         });
       } catch (error) {
@@ -122,29 +154,30 @@ export default class AuthClient {
     });
   }
 
-  async user<T = any>(
+  user<T = any>(
     option?: GetUserOption<T>,
     token?: string,
   ): Promise<ProfileResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+    return new Promise(async (resolve) => {
       try {
         const query = this._filter(option);
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.get<T>(
-          `${this.url}/auth/user${query ? '?' + query : ''}`,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/auth/user${query ? '?' + query : ''}`, {
             headers: token
-              ? { authorization: `Bearer ${token}` }
+              ? { ...this._headers(), Authorization: `Bearer ${token}` }
               : this._headers(),
-            httpsAgent,
-          },
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T;
 
         const user = data;
         resolve({
           user,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -152,29 +185,35 @@ export default class AuthClient {
     });
   }
 
-  async update<T = any>(
+  update<T = any>(
     body: Partial<T>,
     token?: string,
   ): Promise<ProfileResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.patch<T>(
-          `${this.url}/auth/user`,
-          body,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/auth/user`, {
+            method: 'PATCH',
             headers: token
-              ? { authorization: `Bearer ${token}` }
-              : this._headers(),
-            httpsAgent,
-          },
+              ? {
+                  ...this._headers(),
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              : { ...this._headers(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T;
 
         const user = data;
         resolve({
           user,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -188,9 +227,9 @@ export default class AuthClient {
 
   private _headers() {
     const headers: { [key: string]: string } = this.headers;
-    const authBearer = this.token();
-    if (authBearer && authBearer !== '') {
-      headers['Authorization'] = `Bearer ${authBearer}`;
+    const token = this.token();
+    if (token && token !== '') {
+      headers['Authorization'] = `Bearer ${token}`;
     }
     return headers;
   }
@@ -200,27 +239,28 @@ export default class AuthClient {
     this._setToken(token);
   }
 
-  async logout<T = any>(token?: string): Promise<AuthResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+  logout<T = any>(token?: string): Promise<AuthResponse<T>> {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.post<TokenResponse<T>>(
-          `${this.url}/auth/logout`,
-          null,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/auth/logout`, {
+            method: 'POST',
             headers: token
-              ? { authorization: `Bearer ${token}` }
+              ? { ...this._headers(), Authorization: `Bearer ${token}` }
               : this._headers(),
-            httpsAgent,
-          },
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as TokenResponse<T>;
 
         this._removeToken();
         const user = data.user;
         resolve({
           user,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
           token: data.token,
         });
       } catch (error) {
@@ -229,24 +269,26 @@ export default class AuthClient {
     });
   }
 
-  async verifyToken<T = any>(token?: string): Promise<AuthResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+  verifyToken<T = any>(token?: string): Promise<AuthResponse<T>> {
+    return new Promise(async (resolve) => {
       try {
-        const { data, status, statusText } = await axios.post<TokenResponse<T>>(
-          `${this.url}/auth/verify-token`,
-          null,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/auth/verify-token`, {
+            method: 'POST',
             headers: token
-              ? { authorization: `Bearer ${token}` }
+              ? { ...this._headers(), Authorization: `Bearer ${token}` }
               : this._headers(),
-          },
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as TokenResponse<T>;
 
         const user = data.user;
         resolve({
           user,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
           token: data.token,
         });
       } catch (error) {
@@ -255,7 +297,7 @@ export default class AuthClient {
     });
   }
 
-  async changePassword(
+  changePassword(
     body: {
       oldPassword: string;
       newPassword: string;
@@ -267,21 +309,30 @@ export default class AuthClient {
     status: number;
     statusText: string;
   }> {
-    return new Promise(async (resolve, _reject) => {
+    return new Promise(async (resolve) => {
       try {
-        const { data, status, statusText } = await axios.post<{
-          message: string;
-        }>(`${this.url}/auth/change-password`, body, {
-          headers: token
-            ? { authorization: `Bearer ${token}` }
-            : this._headers(),
-        });
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/auth/change-password`, {
+            method: 'POST',
+            headers: token
+              ? {
+                  ...this._headers(),
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              : { ...this._headers(), 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
+        );
+        const data = (await res.json()) as { message: string };
 
         const message = data.message;
         resolve({
           message,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve({

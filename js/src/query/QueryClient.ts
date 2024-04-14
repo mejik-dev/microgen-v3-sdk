@@ -1,4 +1,3 @@
-import axios from 'axios';
 import qs from 'qs';
 import { FieldClient } from '../field';
 import {
@@ -13,6 +12,19 @@ import {
   GetByIdOption,
 } from './lib/types';
 import hA from './lib/httpsAgent';
+
+class FailedHTTPResponse extends Error {
+  public status: number;
+  public statusText: string;
+  public data: any;
+
+  constructor(status: number, statusText: string, data: any = null) {
+    super(`${status}: ${statusText}`);
+    this.status = status;
+    this.statusText = statusText;
+    this.data = data;
+  }
+}
 
 export default class QueryClient<T> {
   protected url: string;
@@ -30,27 +42,35 @@ export default class QueryClient<T> {
   }
 
   private _error(error: any): MicrogenResponseFailure {
-    if (axios.isAxiosError(error) && error.response) {
+    if (error instanceof FailedHTTPResponse) {
       return {
         error: {
-          message: (error.response.data as any)?.message
-            ? (error.response.data as any).message
-            : typeof error.response.data === 'object'
-              ? JSON.stringify(error.response.data)
-              : String(error.response.data),
+          message: error.data,
         },
-        status: error.response.status,
-        statusText: error.response.statusText,
+        status: error.status,
+        statusText: error.statusText,
       };
     }
 
     return {
       error: {
-        message: 'Failed',
+        message: 'failed',
       },
       status: 500,
       statusText: 'FAILED',
     };
+  }
+
+  private async _checkResponse(response: Response) {
+    if (!response.ok) {
+      throw new FailedHTTPResponse(
+        response.status,
+        response.statusText,
+        await response.text(),
+      );
+    }
+
+    return response;
   }
 
   private _filter(option?: FindOption<T>): string {
@@ -99,30 +119,28 @@ export default class QueryClient<T> {
     return query;
   }
 
-  async find(
-    option?: FindOption<T>,
-    token?: string,
-  ): Promise<MicrogenResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+  find(option?: FindOption<T>, token?: string): Promise<MicrogenResponse<T>> {
+    return new Promise(async (resolve) => {
       try {
         const query = this._filter(option);
         const httpsAgent = await hA();
-        const { data, status, statusText, headers } = await axios.get<T[]>(
-          `${this.url}${query ? '?' + query : ''}`,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}${query ? '?' + query : ''}`, {
             headers: token
-              ? { authorization: `Bearer ${token}` }
+              ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent,
-          },
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T[];
 
         resolve({
           data,
-          status,
-          statusText,
-          limit: Number(headers['x-pagination-limit']),
-          skip: Number(headers['x-pagination-skip']),
+          status: res.status,
+          statusText: res.statusText,
+          limit: Number(res.headers.get('x-pagination-limit')),
+          skip: Number(res.headers.get('x-pagination-skip')),
         });
       } catch (error) {
         resolve(this._error(error));
@@ -130,29 +148,30 @@ export default class QueryClient<T> {
     });
   }
 
-  async getById(
+  getById(
     id: string,
     option?: GetByIdOption<T>,
     token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+    return new Promise(async (resolve) => {
       try {
         const query = this._filter(option);
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.get<T>(
-          `${this.url}/${id}${query ? '?' + query : ''}`,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/${id}${query ? '?' + query : ''}`, {
             headers: token
-              ? { authorization: `Bearer ${token}` }
+              ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent,
-          },
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T;
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -160,28 +179,31 @@ export default class QueryClient<T> {
     });
   }
 
-  async create(
-    body: Partial<T>,
-    token?: string,
-  ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+  create(body: Partial<T>, token?: string): Promise<MicrogenSingleResponse<T>> {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.post<T>(
-          this.url,
-          body,
-          {
+        const res = await this._checkResponse(
+          await fetch(this.url, {
+            method: 'POST',
             headers: token
-              ? { authorization: `Bearer ${token}` }
-              : this.headers,
-            httpsAgent,
-          },
+              ? {
+                  ...this.headers,
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              : { ...this.headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T;
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -189,28 +211,31 @@ export default class QueryClient<T> {
     });
   }
 
-  async createMany(
-    body: Partial<T>[],
-    token?: string,
-  ): Promise<MicrogenResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+  createMany(body: Partial<T>[], token?: string): Promise<MicrogenResponse<T>> {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.post<T[]>(
-          this.url,
-          body,
-          {
+        const res = await this._checkResponse(
+          await fetch(this.url, {
+            method: 'POST',
             headers: token
-              ? { authorization: `Bearer ${token}` }
-              : this.headers,
-            httpsAgent,
-          },
+              ? {
+                  ...this.headers,
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              : { ...this.headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T[];
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -218,29 +243,35 @@ export default class QueryClient<T> {
     });
   }
 
-  async updateById(
+  updateById(
     id: string,
     body: Partial<T>,
     token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.patch<T>(
-          `${this.url}/${id}`,
-          body,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/${id}`, {
+            method: 'PATCH',
             headers: token
-              ? { authorization: `Bearer ${token}` }
-              : this.headers,
-            httpsAgent,
-          },
+              ? {
+                  ...this.headers,
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              : { ...this.headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T;
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -248,28 +279,31 @@ export default class QueryClient<T> {
     });
   }
 
-  async updateMany(
-    body: Partial<T>[],
-    token?: string,
-  ): Promise<MicrogenResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+  updateMany(body: Partial<T>[], token?: string): Promise<MicrogenResponse<T>> {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.patch<T[]>(
-          this.url,
-          body,
-          {
+        const res = await this._checkResponse(
+          await fetch(this.url, {
+            method: 'PATCH',
             headers: token
-              ? { authorization: `Bearer ${token}` }
-              : this.headers,
-            httpsAgent,
-          },
+              ? {
+                  ...this.headers,
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              : { ...this.headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T[];
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -277,27 +311,26 @@ export default class QueryClient<T> {
     });
   }
 
-  async deleteById(
-    id: string,
-    token?: string,
-  ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+  deleteById(id: string, token?: string): Promise<MicrogenSingleResponse<T>> {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.delete<T>(
-          `${this.url}/${id}`,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/${id}`, {
+            method: 'DELETE',
             headers: token
-              ? { authorization: `Bearer ${token}` }
+              ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent,
-          },
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T;
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -305,27 +338,26 @@ export default class QueryClient<T> {
     });
   }
 
-  async deleteMany(
-    body: string[],
-    token?: string,
-  ): Promise<MicrogenResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+  deleteMany(body: string[], token?: string): Promise<MicrogenResponse<T>> {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.delete<T[]>(
-          `${this.url}?recordIds=${body.join(',')}`,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}?recordIds=${body.join(',')}`, {
+            method: 'DELETE',
             headers: token
-              ? { authorization: `Bearer ${token}` }
+              ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent,
-          },
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as T[];
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -333,53 +365,35 @@ export default class QueryClient<T> {
     });
   }
 
-  async link(
-    id: string,
-    body: { [key: string]: string },
-    token?: string,
-  ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
-      try {
-        const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.request<T>({
-          method: 'LINK',
-          url: `${this.url}/${id}`,
-          headers: token ? { authorization: `Bearer ${token}` } : this.headers,
-          httpsAgent,
-          data: body,
-        });
-
-        resolve({
-          data,
-          status,
-          statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
-  }
-
-  async unlink(
+  link(
     id: string,
     body: { [key: string]: string },
     token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve, _reject) => {
+    return new Promise(async (resolve) => {
       try {
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.request<T>({
-          method: 'UNLINK',
-          url: `${this.url}/${id}`,
-          headers: token ? { authorization: `Bearer ${token}` } : this.headers,
-          httpsAgent,
-          data: body,
-        });
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/${id}`, {
+            method: 'LINK',
+            headers: token
+              ? {
+                  ...this.headers,
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              : { ...this.headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
+        );
+        const data = (await res.json()) as T;
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));
@@ -387,28 +401,65 @@ export default class QueryClient<T> {
     });
   }
 
-  async count(
+  unlink(
+    id: string,
+    body: { [key: string]: string },
+    token?: string,
+  ): Promise<MicrogenSingleResponse<T>> {
+    return new Promise(async (resolve) => {
+      try {
+        const httpsAgent = await hA();
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/${id}`, {
+            method: 'UNLINK',
+            headers: token
+              ? {
+                  ...this.headers,
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                }
+              : { ...this.headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
+        );
+        const data = (await res.json()) as T;
+
+        resolve({
+          data,
+          status: res.status,
+          statusText: res.statusText,
+        });
+      } catch (error) {
+        resolve(this._error(error));
+      }
+    });
+  }
+
+  count(
     option?: CountOption<T>,
     token?: string,
   ): Promise<MicrogenResponseCount> {
-    return new Promise(async (resolve, _reject) => {
+    return new Promise(async (resolve) => {
       try {
         const query = this._filter(option);
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.get<MicrogenCount>(
-          `${this.url}/count${query ? '?' + query : ''}`,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/count${query ? '?' + query : ''}`, {
             headers: token
-              ? { authorization: `Bearer ${token}` }
+              ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
-            httpsAgent,
-          },
+            // @ts-expect-error
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as MicrogenCount;
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         resolve(this._error(error));

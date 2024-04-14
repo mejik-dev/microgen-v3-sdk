@@ -4,7 +4,9 @@ export default async function httpsAgent() {
       return undefined;
     }
 
-    return new (await import('https')).Agent({ rejectUnauthorized: false });
+    return new (await import('undici')).Agent({
+      connect: { rejectUnauthorized: false },
+    });
   }
 
   return undefined;

@@ -1,10 +1,3 @@
-# Logs
-*.log
-
-# Coverage directory used by tools like istanbul
-coverage
-.nyc_output
-
 # Dependency directories
 node_modules
 
@@ -13,22 +6,14 @@ package-lock.json
 yarn.lock
 
 # project files
-.babelrc
-.editorconfig
 .env
 .env.example
-.eslintignore
 .eslintrc
 .prettierrc
-.travis.yml
-
-example
-examples
 test
-umd_temp
-
 DEVELOPMENT.md
 jest.config.js
+LICENSE
+README.md
 tsconfig.json
-tsconfig.module.json
-webpack.config.js
+tsconfig.main.json

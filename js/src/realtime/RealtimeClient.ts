@@ -1,4 +1,3 @@
-import axios from 'axios';
 import qs from 'qs';
 import {
   RealtimeClientOption,
@@ -11,6 +10,19 @@ import Centrifuge from 'centrifuge';
 import WebSocket from 'isomorphic-ws';
 import hA from './lib/httpsAgent';
 
+class FailedHTTPResponse extends Error {
+  public status: number;
+  public statusText: string;
+  public data: any;
+
+  constructor(status: number, statusText: string, data: any = null) {
+    super(`${status}: ${statusText}`);
+    this.status = status;
+    this.statusText = statusText;
+    this.data = data;
+  }
+}
+
 export default class RealtimeClient {
   protected option: RealtimeClientOption;
   subcriptions = new Map();
@@ -19,7 +31,19 @@ export default class RealtimeClient {
     this.option = option;
   }
 
-  _centrifuge(token: string | null | undefined) {
+  private async _checkResponse(response: Response) {
+    if (!response.ok) {
+      throw new FailedHTTPResponse(
+        response.status,
+        response.statusText,
+        await response.text(),
+      );
+    }
+
+    return response;
+  }
+
+  private _centrifuge(token: string | null | undefined) {
     const url = `${this.option.url.replace('http', 'ws')}/connection/${
       this.option.apiKey
     }/websocket${token ? `?token=${token}` : ''}`;
@@ -36,7 +60,7 @@ export default class RealtimeClient {
     onDisconnect?: DisconnectCallback,
     onConnect?: ConnectCallback,
   ): Promise<string> {
-    return new Promise<string>(async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         let key = `${name.toLowerCase().replace(' ', '-')}-${String(
           new Date().getTime(),
@@ -48,19 +72,25 @@ export default class RealtimeClient {
           lastSubscribe.unsubscribe();
         }
 
-        const httpsAgent = await hA();
-        const getChannel = await axios.get(
-          `${this.option.url}/channel/${this.option.apiKey}/${name}`,
-          { httpsAgent },
-        );
-
         let filter = '';
 
         if (where) {
           filter = ':' + qs.stringify(where, { encodeValuesOnly: true });
         }
 
-        const channel = `${getChannel.data.name}:${event || '*'}${filter}`;
+        const httpsAgent = await hA();
+        const res = await this._checkResponse(
+          await fetch(
+            `${this.option.url}/channel/${this.option.apiKey}/${name}`,
+            {
+              // @ts-expect-error
+              dispatcher: httpsAgent,
+            },
+          ),
+        );
+        const data = (await res.json()) as { name: string };
+
+        const channel = `${data.name}:${event || '*'}${filter}`;
         const centrifuge = this._centrifuge(token);
 
         const subscribe = centrifuge.subscribe(
@@ -97,7 +127,7 @@ export default class RealtimeClient {
 
         resolve(key);
       } catch (error) {
-        reject(error);
+        reject(error instanceof FailedHTTPResponse ? error.data : error);
       }
     });
   }

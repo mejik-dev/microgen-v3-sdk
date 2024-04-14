@@ -1,5 +1,6 @@
 import MicrogenClient from './MicrogenClient';
 import { MicrogenClientOptions } from './lib/types';
+
 /**
  * Creates a new Microgen Client.
  */
@@ -9,4 +10,4 @@ const createClient = (options: MicrogenClientOptions) => {
 
 export * from './lib/types';
 
-export { createClient, MicrogenClient, MicrogenClientOptions };
+export { createClient, MicrogenClient };

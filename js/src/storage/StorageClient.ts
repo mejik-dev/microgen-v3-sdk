@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {
   StorageResponseFailure,
   StorageSingleResponse,
@@ -7,6 +6,19 @@ import {
 import FormData from 'form-data';
 import { AuthClient } from '../auth';
 import hA from './lib/httpsAgent';
+
+class FailedHTTPResponse extends Error {
+  public status: number;
+  public statusText: string;
+  public data: any;
+
+  constructor(status: number, statusText: string, data: any = null) {
+    super(`${status}: ${statusText}`);
+    this.status = status;
+    this.statusText = statusText;
+    this.data = data;
+  }
+}
 
 export default class StorageClient {
   protected url: string;
@@ -18,27 +30,35 @@ export default class StorageClient {
   }
 
   private _error(error: any): StorageResponseFailure {
-    if (axios.isAxiosError(error) && error.response) {
+    if (error instanceof FailedHTTPResponse) {
       return {
         error: {
-          message: (error.response.data as any)?.message
-            ? (error.response.data as any).message
-            : typeof error.response.data === 'object'
-              ? JSON.stringify(error.response.data)
-              : String(error.response.data),
+          message: error.data,
         },
-        status: error.response.status,
-        statusText: error.response.statusText,
+        status: error.status,
+        statusText: error.statusText,
       };
     }
 
     return {
       error: {
-        message: 'Failed',
+        message: 'failed',
       },
       status: 500,
       statusText: 'FAILED',
     };
+  }
+
+  private async _checkResponse(response: Response) {
+    if (!response.ok) {
+      throw new FailedHTTPResponse(
+        response.status,
+        response.statusText,
+        await response.text(),
+      );
+    }
+
+    return response;
   }
 
   private _getHeaders(): { [key: string]: string } {
@@ -50,7 +70,7 @@ export default class StorageClient {
     return headers;
   }
 
-  async upload(
+  upload(
     file:
       | ArrayBuffer
       | ArrayBufferView
@@ -64,7 +84,7 @@ export default class StorageClient {
     fileName?: string,
     token?: string,
   ): Promise<StorageSingleResponse> {
-    return new Promise(async (resolve, _reject) => {
+    return new Promise(async (resolve) => {
       try {
         const form = new FormData();
         form.append('file', file, fileName);
@@ -73,21 +93,27 @@ export default class StorageClient {
           formHeaders = form.getHeaders();
         }
         const httpsAgent = await hA();
-        const { data, status, statusText } = await axios.post<Storage>(
-          this.url + '/upload',
-          form,
-          {
+        const res = await this._checkResponse(
+          await fetch(`${this.url}/upload`, {
+            method: 'POST',
             headers: token
-              ? { ...formHeaders, authorization: `Bearer ${token}` }
-              : { ...formHeaders, ...this._getHeaders() },
-            httpsAgent,
-          },
+              ? {
+                  ...this._getHeaders(),
+                  Authorization: `Bearer ${token}`,
+                  ...formHeaders,
+                }
+              : { ...this._getHeaders(), ...formHeaders },
+            // @ts-expect-error
+            body: form,
+            dispatcher: httpsAgent,
+          }),
         );
+        const data = (await res.json()) as Storage;
 
         resolve({
           data,
-          status,
-          statusText,
+          status: res.status,
+          statusText: res.statusText,
         });
       } catch (error) {
         return resolve(this._error(error));
