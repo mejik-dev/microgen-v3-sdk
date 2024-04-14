@@ -78,7 +78,7 @@ export default class StorageClient {
       try {
         const form = new FormData();
 
-        if (file.constructor.name === 'Blob' && !fileName) {
+        if (!fileName && file.constructor.name === 'Blob') {
           throw new FailedHTTPResponse(
             400,
             'Bad Request',
@@ -86,7 +86,13 @@ export default class StorageClient {
           );
         }
 
-        form.set('file', file, fileName);
+        form.set(
+          'file',
+          file,
+          !fileName && file.constructor.name === 'File'
+            ? (file as File).name
+            : fileName,
+        );
 
         const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
