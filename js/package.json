@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mejik-dev/microgen-v3-sdk.git",
+    "url": "git+https://github.com/mejik-dev/microgen-v3-sdk.git",
     "directory": "js"
   },
   "homepage": "https://microgen.id",
