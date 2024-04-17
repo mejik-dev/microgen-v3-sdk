@@ -8,7 +8,7 @@
   "exports": {
     ".": {
       "import": "./dist/module/index.js",
-      "require": "./dist/main.index.js",
+      "require": "./dist/main/index.js",
       "types": "./dist/types/index.d.ts"
     }
   },
