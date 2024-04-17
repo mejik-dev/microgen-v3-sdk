@@ -1,7 +1,8 @@
-import getRuntime from './util';
+// import getRuntime from './util';
 
 export default async function getDispatcher() {
-  return getRuntime() === 'node'
-    ? (await import('../lib/httpsAgent')).default()
-    : undefined;
+  // return getRuntime() === 'node'
+  //   ? (await import('../lib/httpsAgent')).default()
+  //   : undefined;
+  return undefined;
 }
