@@ -1,4 +1,4 @@
-export type MicrogenClientOptions = {
+export interface MicrogenClientOptions {
   /**
    * The unique Microgen Key which is supplied when you create a new project in your project dashboard.
    */
@@ -19,4 +19,4 @@ export type MicrogenClientOptions = {
    * Dedicated Microgen Stream URL
    */
   streamUrl?: string;
-};
+}

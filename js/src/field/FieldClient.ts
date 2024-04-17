@@ -1,11 +1,10 @@
-import {
+import type {
   Field,
   FieldClientOption,
   FieldResponse,
   FieldResponseFailure,
   FieldSingleResponse,
 } from './lib/types';
-import getDispatcher from '../lib/dispatcher';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -22,7 +21,7 @@ class FailedHTTPResponse extends Error {
 
 export default class FieldClient<T> {
   protected url: string;
-  protected headers: { [key: string]: string };
+  protected headers: Record<string, string>;
 
   constructor(url: string, options: FieldClientOption) {
     this.url = `${url}/fields`;
@@ -61,49 +60,41 @@ export default class FieldClient<T> {
     return response;
   }
 
-  find(): Promise<FieldResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(this.url, {
-            headers: this.headers,
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as Field<T>[];
+  async find(): Promise<FieldResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(this.url, {
+          headers: this.headers,
+        }),
+      );
+      const data = (await res.json()) as Field<T>[];
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  getById(id: string): Promise<FieldSingleResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/${id}`, {
-            headers: this.headers,
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as Field<T>;
+  async getById(id: string): Promise<FieldSingleResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/${id}`, {
+          headers: this.headers,
+        }),
+      );
+      const data = (await res.json()) as Field<T>;
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 }

@@ -1,17 +1,17 @@
 import qs from 'qs';
-import { FieldClient } from '../field';
-import {
+
+import type {
+  CountOption,
+  FindOption,
+  GetByIdOption,
+  MicrogenCount,
   MicrogenResponse,
+  MicrogenResponseCount,
   MicrogenResponseFailure,
   MicrogenSingleResponse,
-  FindOption,
   QueryClientOption,
-  MicrogenCount,
-  MicrogenResponseCount,
-  CountOption,
-  GetByIdOption,
 } from './lib/types';
-import getDispatcher from '../lib/dispatcher';
+import { FieldClient } from '../field';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -28,7 +28,7 @@ class FailedHTTPResponse extends Error {
 
 export default class QueryClient<T> {
   protected url: string;
-  protected headers: { [key: string]: string };
+  protected headers: Record<string, string>;
 
   public field: FieldClient<T>;
 
@@ -78,32 +78,32 @@ export default class QueryClient<T> {
     if (option) {
       let filter: any = {};
       if (typeof option.skip !== 'undefined') {
-        filter['$skip'] = option.skip;
+        filter.$skip = option.skip;
         delete option.skip;
       }
 
       if (typeof option.limit !== 'undefined') {
-        filter['$limit'] = option.limit;
+        filter.$limit = option.limit;
         delete option.limit;
       }
 
       if (typeof option.sort !== 'undefined') {
-        filter['$sort'] = option.sort;
+        filter.$sort = option.sort;
         delete option.sort;
       }
 
       if (typeof option.select !== 'undefined') {
-        filter['$select'] = option.select;
+        filter.$select = option.select;
         delete option.select;
       }
 
       if (typeof option.lookup !== 'undefined') {
-        filter['$lookup'] = option.lookup;
+        filter.$lookup = option.lookup;
         delete option.lookup;
       }
 
       if (typeof option.or !== 'undefined') {
-        filter['$or'] = option.or;
+        filter.$or = option.or;
         delete option.or;
       }
 
@@ -119,340 +119,314 @@ export default class QueryClient<T> {
     return query;
   }
 
-  find(option?: FindOption<T>, token?: string): Promise<MicrogenResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const query = this._filter(option);
-        const res = await this._checkResponse(
-          await fetch(`${this.url}${query ? '?' + query : ''}`, {
-            headers: token
-              ? { ...this.headers, Authorization: `Bearer ${token}` }
-              : this.headers,
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T[];
+  async find(
+    option?: FindOption<T>,
+    token?: string,
+  ): Promise<MicrogenResponse<T>> {
+    try {
+      const query = this._filter(option);
+      const res = await this._checkResponse(
+        await fetch(`${this.url}${query ? '?' + query : ''}`, {
+          headers: token
+            ? { ...this.headers, Authorization: `Bearer ${token}` }
+            : this.headers,
+        }),
+      );
+      const data = (await res.json()) as T[];
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-          limit: Number(res.headers.get('x-pagination-limit')),
-          skip: Number(res.headers.get('x-pagination-skip')),
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+        limit: Number(res.headers.get('x-pagination-limit')),
+        skip: Number(res.headers.get('x-pagination-skip')),
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  getById(
+  async getById(
     id: string,
     option?: GetByIdOption<T>,
     token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const query = this._filter(option);
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/${id}${query ? '?' + query : ''}`, {
-            headers: token
-              ? { ...this.headers, Authorization: `Bearer ${token}` }
-              : this.headers,
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T;
+    try {
+      const query = this._filter(option);
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/${id}${query ? '?' + query : ''}`, {
+          headers: token
+            ? { ...this.headers, Authorization: `Bearer ${token}` }
+            : this.headers,
+        }),
+      );
+      const data = (await res.json()) as T;
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  create(body: Partial<T>, token?: string): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(this.url, {
-            method: 'POST',
-            headers: token
-              ? {
-                  ...this.headers,
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              : { ...this.headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T;
+  async create(
+    body: Partial<T>,
+    token?: string,
+  ): Promise<MicrogenSingleResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(this.url, {
+          method: 'POST',
+          headers: token
+            ? {
+                ...this.headers,
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            : { ...this.headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as T;
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  createMany(body: Partial<T>[], token?: string): Promise<MicrogenResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(this.url, {
-            method: 'POST',
-            headers: token
-              ? {
-                  ...this.headers,
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              : { ...this.headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T[];
+  async createMany(
+    body: Partial<T>[],
+    token?: string,
+  ): Promise<MicrogenResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(this.url, {
+          method: 'POST',
+          headers: token
+            ? {
+                ...this.headers,
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            : { ...this.headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as T[];
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  updateById(
+  async updateById(
     id: string,
     body: Partial<T>,
     token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/${id}`, {
-            method: 'PATCH',
-            headers: token
-              ? {
-                  ...this.headers,
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              : { ...this.headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T;
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/${id}`, {
+          method: 'PATCH',
+          headers: token
+            ? {
+                ...this.headers,
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            : { ...this.headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as T;
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  updateMany(body: Partial<T>[], token?: string): Promise<MicrogenResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(this.url, {
-            method: 'PATCH',
-            headers: token
-              ? {
-                  ...this.headers,
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              : { ...this.headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T[];
+  async updateMany(
+    body: Partial<T>[],
+    token?: string,
+  ): Promise<MicrogenResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(this.url, {
+          method: 'PATCH',
+          headers: token
+            ? {
+                ...this.headers,
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            : { ...this.headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as T[];
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  deleteById(id: string, token?: string): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/${id}`, {
-            method: 'DELETE',
-            headers: token
-              ? { ...this.headers, Authorization: `Bearer ${token}` }
-              : this.headers,
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T;
-
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
-  }
-
-  deleteMany(body: string[], token?: string): Promise<MicrogenResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}?recordIds=${body.join(',')}`, {
-            method: 'DELETE',
-            headers: token
-              ? { ...this.headers, Authorization: `Bearer ${token}` }
-              : this.headers,
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T[];
-
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
-  }
-
-  link(
+  async deleteById(
     id: string,
-    body: { [key: string]: string },
     token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/${id}`, {
-            method: 'LINK',
-            headers: token
-              ? {
-                  ...this.headers,
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              : { ...this.headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T;
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/${id}`, {
+          method: 'DELETE',
+          headers: token
+            ? { ...this.headers, Authorization: `Bearer ${token}` }
+            : this.headers,
+        }),
+      );
+      const data = (await res.json()) as T;
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  unlink(
+  async deleteMany(
+    body: string[],
+    token?: string,
+  ): Promise<MicrogenResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}?recordIds=${body.join(',')}`, {
+          method: 'DELETE',
+          headers: token
+            ? { ...this.headers, Authorization: `Bearer ${token}` }
+            : this.headers,
+        }),
+      );
+      const data = (await res.json()) as T[];
+
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
+  }
+
+  async link(
     id: string,
-    body: { [key: string]: string },
+    body: Record<string, string>,
     token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/${id}`, {
-            method: 'UNLINK',
-            headers: token
-              ? {
-                  ...this.headers,
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              : { ...this.headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T;
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/${id}`, {
+          method: 'LINK',
+          headers: token
+            ? {
+                ...this.headers,
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            : { ...this.headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as T;
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  count(
+  async unlink(
+    id: string,
+    body: Record<string, string>,
+    token?: string,
+  ): Promise<MicrogenSingleResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/${id}`, {
+          method: 'UNLINK',
+          headers: token
+            ? {
+                ...this.headers,
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            : { ...this.headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as T;
+
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
+  }
+
+  async count(
     option?: CountOption<T>,
     token?: string,
   ): Promise<MicrogenResponseCount> {
-    return new Promise(async (resolve) => {
-      try {
-        const query = this._filter(option);
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/count${query ? '?' + query : ''}`, {
-            headers: token
-              ? { ...this.headers, Authorization: `Bearer ${token}` }
-              : this.headers,
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as MicrogenCount;
+    try {
+      const query = this._filter(option);
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/count${query ? '?' + query : ''}`, {
+          headers: token
+            ? { ...this.headers, Authorization: `Bearer ${token}` }
+            : this.headers,
+        }),
+      );
+      const data = (await res.json()) as MicrogenCount;
 
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 }

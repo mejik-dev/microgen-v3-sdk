@@ -1,9 +1,9 @@
+import type { MicrogenClientOptions } from './lib/types';
 import { QueryClient } from '..';
 import { AuthClient } from '../auth';
 import { RealtimeClient } from '../realtime';
 import { StorageClient } from '../storage';
 import Realtime from './lib/Realtime';
-import { MicrogenClientOptions } from './lib/types';
 
 export default class MicrogenClient {
   auth: AuthClient;
@@ -14,7 +14,7 @@ export default class MicrogenClient {
   protected apiKey: string;
   protected queryUrl: string;
   protected realtimeUrl: string;
-  protected headers: { [key: string]: string };
+  protected headers: Record<string, string>;
 
   constructor(options: MicrogenClientOptions) {
     if (!options?.apiKey) throw new Error('apiKey is required');
@@ -49,11 +49,11 @@ export default class MicrogenClient {
     this.storage = new StorageClient(`${this.queryUrl}/storage`, this.auth);
   }
 
-  private _getHeaders(): { [key: string]: string } {
-    const headers: { [key: string]: string } = this.headers;
+  private _getHeaders(): Record<string, string> {
+    const headers: Record<string, string> = this.headers;
     const authBearer = this.auth.token();
     if (authBearer && authBearer !== '') {
-      headers['Authorization'] = `Bearer ${authBearer}`;
+      headers.Authorization = `Bearer ${authBearer}`;
     }
     return headers;
   }

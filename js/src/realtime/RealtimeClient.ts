@@ -1,14 +1,13 @@
+import WebSocket from 'isomorphic-ws';
 import qs from 'qs';
-import {
-  RealtimeClientOption,
-  RealtimeCallback,
-  SubscribeOption,
+
+import type {
   ConnectCallback,
   DisconnectCallback,
+  RealtimeCallback,
+  RealtimeClientOption,
+  SubscribeOption,
 } from './lib/types';
-import Centrifuge from 'centrifuge';
-import WebSocket from 'isomorphic-ws';
-import getDispatcher from '../lib/dispatcher';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -25,7 +24,8 @@ class FailedHTTPResponse extends Error {
 
 export default class RealtimeClient {
   protected option: RealtimeClientOption;
-  subcriptions = new Map();
+
+  subcriptions = new Map<string, WebSocket>();
 
   constructor(option: RealtimeClientOption) {
     this.option = option;
@@ -43,98 +43,100 @@ export default class RealtimeClient {
     return response;
   }
 
-  private _centrifuge(token: string | null | undefined) {
-    const url = `${this.option.url.replace('http', 'ws')}/connection/${
-      this.option.apiKey
-    }/websocket${token ? `?token=${token}` : ''}`;
-    return new Centrifuge(url, {
-      websocket: typeof window !== 'undefined' ? null : WebSocket,
-      disableWithCredentials: false,
-    });
-  }
-
-  subscribe<T>(
+  async subscribe<T>(
     name: string,
     { token, event, where }: SubscribeOption<T>,
     callback: RealtimeCallback,
     onDisconnect?: DisconnectCallback,
     onConnect?: ConnectCallback,
   ): Promise<string> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let key = `${name.toLowerCase().replace(' ', '-')}-${String(
-          new Date().getTime(),
-        )}`;
+    try {
+      const lastSubscribe = this.subcriptions.get(name);
 
-        const lastSubscribe = this.subcriptions.get(name);
+      if (lastSubscribe) {
+        lastSubscribe.close();
+      }
 
-        if (lastSubscribe) {
-          lastSubscribe.unsubscribe();
-        }
+      let filter = '';
 
-        let filter = '';
+      if (where) {
+        filter = ':' + qs.stringify(where, { encodeValuesOnly: true });
+      }
 
-        if (where) {
-          filter = ':' + qs.stringify(where, { encodeValuesOnly: true });
-        }
+      const res = await this._checkResponse(
+        await fetch(`${this.option.url}/channel/${this.option.apiKey}/${name}`),
+      );
+      const data = (await res.json()) as { name: string };
+      const channel = `${data.name}:${event || '*'}${filter}`;
 
-        const res = await this._checkResponse(
-          await fetch(
-            `${this.option.url}/channel/${this.option.apiKey}/${name}`,
-            {
-              // @ts-expect-error
-              dispatcher: await getDispatcher(),
-            },
-          ),
+      const key = `${name.toLowerCase().replace(' ', '-')}-${String(
+        new Date().getTime(),
+      )}`;
+
+      const websocket = new WebSocket(
+        `${this.option.url.replace('http', 'ws')}/connection/${
+          this.option.apiKey
+        }/websocket${token ? `?token=${token}` : ''}`,
+      );
+
+      websocket.onopen = () => {
+        websocket.send(
+          JSON.stringify({
+            params: { name: 'js' },
+            id: 1,
+          }),
         );
-        const data = (await res.json()) as { name: string };
+        websocket.send(
+          JSON.stringify({
+            method: 1,
+            params: { channel },
+            id: 2,
+          }),
+        );
+        onConnect?.();
+      };
 
-        const channel = `${data.name}:${event || '*'}${filter}`;
-        const centrifuge = this._centrifuge(token);
+      websocket.onclose = () => {
+        onDisconnect?.();
+      };
 
-        const subscribe = centrifuge.subscribe(
-          channel,
-          function (message: any) {
+      websocket.onerror = (e) => {
+        callback?.({
+          key,
+          event: 'ERROR',
+          error: e.error,
+        });
+      };
+
+      websocket.onmessage = (e) => {
+        try {
+          const value = JSON.parse(String(e.data));
+
+          if (value?.result?.data?.data?.eventType) {
             callback?.({
               key,
-              event: message.data.eventType,
-              payload: message.data.payload,
+              event: value.result.data.data.eventType,
+              payload: value.result.data.data.payload,
             });
-          },
-        );
-        subscribe.on('error', function (err: any) {
-          callback?.({
-            key,
-            event: 'ERROR',
-            error: {
-              message: err.message,
-            },
-          });
-        });
-
-        if (onConnect != null) {
-          centrifuge.on('connect', onConnect);
+          }
+        } catch (error) {
+          // do nothing
         }
+      };
 
-        if (onDisconnect != null) {
-          centrifuge.on('disconnect', onDisconnect);
-        }
+      this.subcriptions.set(key, websocket);
 
-        centrifuge.connect();
-
-        this.subcriptions.set(key, centrifuge);
-
-        resolve(key);
-      } catch (error) {
-        reject(error instanceof FailedHTTPResponse ? error.data : error);
-      }
-    });
+      return key;
+    } catch (error) {
+      throw error instanceof FailedHTTPResponse ? error.data : error;
+    }
   }
 
   unsubscribe(key: string): boolean {
     const subscription = this.subcriptions.get(key);
+
     if (subscription) {
-      subscription.disconnect();
+      subscription.close();
       this.subcriptions.delete(key);
     }
 

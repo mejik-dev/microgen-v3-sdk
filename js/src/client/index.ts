@@ -1,5 +1,5 @@
+import type { MicrogenClientOptions } from './lib/types';
 import MicrogenClient from './MicrogenClient';
-import { MicrogenClientOptions } from './lib/types';
 
 /**
  * Creates a new Microgen Client.

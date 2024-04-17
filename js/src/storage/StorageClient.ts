@@ -1,10 +1,9 @@
-import {
+import type { AuthClient } from '../auth';
+import type {
+  Storage,
   StorageResponseFailure,
   StorageSingleResponse,
-  Storage,
 } from './lib/types';
-import { AuthClient } from '../auth';
-import getDispatcher from '../lib/dispatcher';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -60,61 +59,57 @@ export default class StorageClient {
     return response;
   }
 
-  private _getHeaders(): { [key: string]: string } {
-    const headers: { [key: string]: string } = {};
+  private _getHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {};
     const authBearer = this.auth.token();
     if (authBearer && authBearer !== '') {
-      headers['Authorization'] = `Bearer ${authBearer}`;
+      headers.Authorization = `Bearer ${authBearer}`;
     }
     return headers;
   }
 
-  upload(
+  async upload(
     file: Blob | File,
     fileName?: string,
     token?: string,
   ): Promise<StorageSingleResponse> {
-    return new Promise(async (resolve) => {
-      try {
-        const form = new FormData();
+    try {
+      const form = new FormData();
 
-        if (!fileName && file.constructor.name === 'Blob') {
-          throw new FailedHTTPResponse(
-            400,
-            'Bad Request',
-            'fileName is required',
-          );
-        }
-
-        form.set(
-          'file',
-          file,
-          !fileName && file.constructor.name === 'File'
-            ? (file as File).name
-            : fileName,
+      if (!fileName && file.constructor.name === 'Blob') {
+        throw new FailedHTTPResponse(
+          400,
+          'Bad Request',
+          'fileName is required',
         );
-
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/upload`, {
-            method: 'POST',
-            headers: token
-              ? { ...this._getHeaders(), Authorization: `Bearer ${token}` }
-              : this._getHeaders(),
-            body: form,
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as Storage;
-
-        resolve({
-          data,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        return resolve(this._error(error));
       }
-    });
+
+      form.set(
+        'file',
+        file,
+        !fileName && file.constructor.name === 'File'
+          ? (file as File).name
+          : fileName,
+      );
+
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/upload`, {
+          method: 'POST',
+          headers: token
+            ? { ...this._getHeaders(), Authorization: `Bearer ${token}` }
+            : this._getHeaders(),
+          body: form,
+        }),
+      );
+      const data = (await res.json()) as Storage;
+
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 }

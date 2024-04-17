@@ -1,13 +1,13 @@
 import qs from 'qs';
-import { STORAGE_KEY } from './lib/constants';
-import getDispatcher from '../lib/dispatcher';
-import {
-  AuthResponseFailure,
+
+import type {
   AuthResponse,
+  AuthResponseFailure,
+  GetUserOption,
   ProfileResponse,
   TokenResponse,
-  GetUserOption,
 } from './lib/types';
+import { STORAGE_KEY } from './lib/constants';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -24,12 +24,12 @@ class FailedHTTPResponse extends Error {
 
 export default class AuthClient {
   protected url: string;
-  protected headers: { [key: string]: string };
+  protected headers: Record<string, string>;
   protected currentToken: string | null;
 
   constructor(
     url: string,
-    { headers = {} }: { headers?: { [key: string]: string } } = {},
+    { headers = {} }: { headers?: Record<string, string> } = {},
   ) {
     this.url = url;
     this.headers = { ...headers };
@@ -73,10 +73,10 @@ export default class AuthClient {
   private _filter<T = any>(option?: GetUserOption<T>): string {
     let query = '';
     if (option) {
-      let filter: any = {};
+      const filter: any = {};
 
       if (typeof option.lookup !== 'undefined') {
-        filter['$lookup'] = option.lookup;
+        filter.$lookup = option.lookup;
         delete option.lookup;
       }
 
@@ -85,38 +85,35 @@ export default class AuthClient {
     return query;
   }
 
-  login<T = any>(body: {
+  async login<T = any>(body: {
     email: string;
     password: string;
   }): Promise<AuthResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as TokenResponse<T>;
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as TokenResponse<T>;
 
-        this.saveToken(data.token);
-        const user = data.user;
-        resolve({
-          user,
-          status: res.status,
-          statusText: res.statusText,
-          token: data.token,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      this.saveToken(data.token);
+      const user = data.user;
+
+      return {
+        user,
+        status: res.status,
+        statusText: res.statusText,
+        token: data.token,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  register<T = any>(
+  async register<T = any>(
     body: Partial<T> & {
       firstName: string;
       lastName?: string;
@@ -125,96 +122,84 @@ export default class AuthClient {
       role?: string;
     },
   ): Promise<AuthResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as TokenResponse<T>;
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as TokenResponse<T>;
 
-        this.saveToken(data.token);
-        const user = data.user;
-        resolve({
-          user,
-          status: res.status,
-          statusText: res.statusText,
-          token: data.token,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      this.saveToken(data.token);
+      const user = data.user;
+      return {
+        user,
+        status: res.status,
+        statusText: res.statusText,
+        token: data.token,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  user<T = any>(
+  async user<T = any>(
     option?: GetUserOption<T>,
     token?: string,
   ): Promise<ProfileResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const query = this._filter(option);
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/auth/user${query ? '?' + query : ''}`, {
-            headers: token
-              ? { ...this._headers(), Authorization: `Bearer ${token}` }
-              : this._headers(),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T;
+    try {
+      const query = this._filter(option);
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/auth/user${query ? '?' + query : ''}`, {
+          headers: token
+            ? { ...this._headers(), Authorization: `Bearer ${token}` }
+            : this._headers(),
+        }),
+      );
+      const data = (await res.json()) as T;
 
-        const user = data;
-        resolve({
-          user,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      const user = data;
+      return {
+        user,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  update<T = any>(
+  async update<T = any>(
     body: Partial<T>,
     token?: string,
   ): Promise<ProfileResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/auth/user`, {
-            method: 'PATCH',
-            headers: token
-              ? {
-                  ...this._headers(),
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              : { ...this._headers(), 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as T;
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/auth/user`, {
+          method: 'PATCH',
+          headers: token
+            ? {
+                ...this._headers(),
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            : { ...this._headers(), 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as T;
 
-        const user = data;
-        resolve({
-          user,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      const user = data;
+      return {
+        user,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
   token() {
@@ -222,10 +207,10 @@ export default class AuthClient {
   }
 
   private _headers() {
-    const headers: { [key: string]: string } = this.headers;
+    const headers: Record<string, string> = this.headers;
     const token = this.token();
     if (token && token !== '') {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers.Authorization = `Bearer ${token}`;
     }
     return headers;
   }
@@ -235,64 +220,56 @@ export default class AuthClient {
     this._setToken(token);
   }
 
-  logout<T = any>(token?: string): Promise<AuthResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/auth/logout`, {
-            method: 'POST',
-            headers: token
-              ? { ...this._headers(), Authorization: `Bearer ${token}` }
-              : this._headers(),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as TokenResponse<T>;
+  async logout<T = any>(token?: string): Promise<AuthResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/auth/logout`, {
+          method: 'POST',
+          headers: token
+            ? { ...this._headers(), Authorization: `Bearer ${token}` }
+            : this._headers(),
+        }),
+      );
+      const data = (await res.json()) as TokenResponse<T>;
 
-        this._removeToken();
-        const user = data.user;
-        resolve({
-          user,
-          status: res.status,
-          statusText: res.statusText,
-          token: data.token,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      this._removeToken();
+      const user = data.user;
+      return {
+        user,
+        status: res.status,
+        statusText: res.statusText,
+        token: data.token,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  verifyToken<T = any>(token?: string): Promise<AuthResponse<T>> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/auth/verify-token`, {
-            method: 'POST',
-            headers: token
-              ? { ...this._headers(), Authorization: `Bearer ${token}` }
-              : this._headers(),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as TokenResponse<T>;
+  async verifyToken<T = any>(token?: string): Promise<AuthResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/auth/verify-token`, {
+          method: 'POST',
+          headers: token
+            ? { ...this._headers(), Authorization: `Bearer ${token}` }
+            : this._headers(),
+        }),
+      );
+      const data = (await res.json()) as TokenResponse<T>;
 
-        const user = data.user;
-        resolve({
-          user,
-          status: res.status,
-          statusText: res.statusText,
-          token: data.token,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      const user = data.user;
+      return {
+        user,
+        status: res.status,
+        statusText: res.statusText,
+        token: data.token,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
-  changePassword(
+  async changePassword(
     body: {
       oldPassword: string;
       newPassword: string;
@@ -304,35 +281,31 @@ export default class AuthClient {
     status: number;
     statusText: string;
   }> {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await this._checkResponse(
-          await fetch(`${this.url}/auth/change-password`, {
-            method: 'POST',
-            headers: token
-              ? {
-                  ...this._headers(),
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                }
-              : { ...this._headers(), 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            // @ts-expect-error
-            dispatcher: await getDispatcher(),
-          }),
-        );
-        const data = (await res.json()) as { message: string };
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/auth/change-password`, {
+          method: 'POST',
+          headers: token
+            ? {
+                ...this._headers(),
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              }
+            : { ...this._headers(), 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as { message: string };
 
-        const message = data.message;
-        resolve({
-          message,
-          status: res.status,
-          statusText: res.statusText,
-        });
-      } catch (error) {
-        resolve(this._error(error));
-      }
-    });
+      const message = data.message;
+      return {
+        message,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
   }
 
   private _setToken(token: string) {

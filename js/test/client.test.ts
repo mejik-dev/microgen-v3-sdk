@@ -43,6 +43,7 @@ describe('Client', () => {
   let id: string;
   let secondId: string;
   let ids: string[];
+  let key: string;
 
   const login = () => {
     return microgen.auth.login<User>({
@@ -221,6 +222,12 @@ describe('Client', () => {
     expect(response.status).toBe(200);
   });
 
+  test('count', async () => {
+    const response = await microgen.service<Todo>(SERVICE_NAME).count();
+
+    expect(response.status).toBe(200);
+  });
+
   test('upload', async () => {
     const filePath = path.join(__dirname, 'icon.png');
     const file = await fs.openAsBlob(filePath);
@@ -235,24 +242,23 @@ describe('Client', () => {
     expect(response.status).toBe(200);
   });
 
-  test('realtime', async () => {
-    const key = await microgen.realtime.subscribe<Todo>(
+  test('realtime subscribe', async () => {
+    key = await microgen.realtime.subscribe<Todo>(
       SERVICE_NAME,
       { event: '*', where: { name: 'tes' } },
       (message) => {
         console.log(message);
       },
     );
+
+    expect(key).toBeTruthy();
+  });
+
+  test('realtime unsubscribe', async () => {
     const unsubscribe = microgen.realtime.unsubscribe(key);
 
     expect(unsubscribe).toBe(true);
   });
-});
-
-test('count', async () => {
-  const response = await microgen.service<Todo>(SERVICE_NAME).count();
-
-  expect(response.status).toBe(200);
 });
 
 describe('Field', () => {

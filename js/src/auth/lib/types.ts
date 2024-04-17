@@ -43,11 +43,11 @@ type FieldLookup<T> = {
     | '*';
 };
 
-export type Lookup<T> = {
-  '*'?: Array<FieldLookup<T> | keyof T>;
-  _id?: Array<FieldLookup<T> | keyof T | '*'>;
-};
+export interface Lookup<T> {
+  '*'?: (FieldLookup<T> | keyof T)[];
+  _id?: (FieldLookup<T> | keyof T | '*')[];
+}
 
-export type GetUserOption<T> = {
-  lookup?: Array<keyof Partial<T>> | '*' | Lookup<T>;
-};
+export interface GetUserOption<T> {
+  lookup?: (keyof Partial<T>)[] | '*' | Lookup<T>;
+}

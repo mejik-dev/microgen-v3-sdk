@@ -1,10 +1,10 @@
-import { AuthClient } from '../../auth';
-import {
-  RealtimeClient,
-  RealtimeCallback,
-  SubscribeOption,
-  DisconnectCallback,
+import type { AuthClient } from '../../auth';
+import type {
   ConnectCallback,
+  DisconnectCallback,
+  RealtimeCallback,
+  RealtimeClient,
+  SubscribeOption,
 } from '../../realtime';
 
 export default class Realtime {
@@ -22,7 +22,7 @@ export default class Realtime {
     callback: RealtimeCallback,
     onDisconnect?: DisconnectCallback,
     onConnect?: ConnectCallback,
-  ): Promise<string> {
+  ) {
     return this._realtime.subscribe<T>(
       name,
       {

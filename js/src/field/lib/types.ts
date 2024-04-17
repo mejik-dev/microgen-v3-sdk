@@ -42,5 +42,5 @@ export type FieldSingleResponse<T> =
   | FieldResponseFailure;
 
 export interface FieldClientOption {
-  headers?: { [key: string]: string };
+  headers?: Record<string, string>;
 }

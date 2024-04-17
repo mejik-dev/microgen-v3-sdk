@@ -45,10 +45,10 @@ type FieldLookup<T> = {
     | '*';
 };
 
-export type Lookup<T> = {
-  '*'?: Array<FieldLookup<T> | keyof T>;
-  _id?: Array<FieldLookup<T> | keyof T | '*'>;
-};
+export interface Lookup<T> {
+  '*'?: (FieldLookup<T> | keyof T)[];
+  _id?: (FieldLookup<T> | keyof T | '*')[];
+}
 
 type Where<T> =
   | Partial<T>
@@ -89,29 +89,29 @@ type Where<T> =
           };
     };
 
-export type FindOption<T> = {
+export interface FindOption<T> {
   limit?: number;
   skip?: number;
   where?: Where<T>;
   sort?: { [P in keyof Partial<T>]: 1 | -1 }[];
-  select?: Array<keyof Partial<T>>;
-  lookup?: Array<keyof Partial<T>> | '*' | Lookup<T>;
-  or?: Array<Where<T>>;
-};
+  select?: (keyof Partial<T>)[];
+  lookup?: (keyof Partial<T>)[] | '*' | Lookup<T>;
+  or?: Where<T>[];
+}
 
-export type CountOption<T> = {
+export interface CountOption<T> {
   where?: Where<T>;
-  or?: Array<Where<T>>;
-};
+  or?: Where<T>[];
+}
 
-export type GetByIdOption<T> = {
-  select?: Array<keyof Partial<T>>;
-  lookup?: Array<keyof Partial<T>> | '*' | Lookup<T>;
-};
+export interface GetByIdOption<T> {
+  select?: (keyof Partial<T>)[];
+  lookup?: (keyof Partial<T>)[] | '*' | Lookup<T>;
+}
 
 export interface QueryClientOption {
   url: string;
-  headers?: { [key: string]: string };
+  headers?: Record<string, string>;
 }
 
 export interface MicrogenCount {

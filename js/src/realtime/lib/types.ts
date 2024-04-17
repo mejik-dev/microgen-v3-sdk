@@ -29,11 +29,11 @@ export interface RealtimeMessage {
 }
 
 export type RealtimeCallback = (m: RealtimeMessage) => any;
-export type DisconnectCallback = (ctx: any) => any;
-export type ConnectCallback = (ctx: any) => any;
+export type DisconnectCallback = () => any;
+export type ConnectCallback = () => any;
 
-export type SubscribeOption<T> = {
+export interface SubscribeOption<T> {
   event: RealtimeEventTypes;
   where?: Partial<T>;
   token?: string | null;
-};
+}
