@@ -11,7 +11,7 @@ import {
   CountOption,
   GetByIdOption,
 } from './lib/types';
-import httpsAgent from './lib/httpsAgent';
+import getDispatcher from '../lib/dispatcher';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -123,14 +123,13 @@ export default class QueryClient<T> {
     return new Promise(async (resolve) => {
       try {
         const query = this._filter(option);
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}${query ? '?' + query : ''}`, {
             headers: token
               ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T[];
@@ -156,14 +155,13 @@ export default class QueryClient<T> {
     return new Promise(async (resolve) => {
       try {
         const query = this._filter(option);
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/${id}${query ? '?' + query : ''}`, {
             headers: token
               ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T;
@@ -182,7 +180,6 @@ export default class QueryClient<T> {
   create(body: Partial<T>, token?: string): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(this.url, {
             method: 'POST',
@@ -195,7 +192,7 @@ export default class QueryClient<T> {
               : { ...this.headers, 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T;
@@ -214,7 +211,6 @@ export default class QueryClient<T> {
   createMany(body: Partial<T>[], token?: string): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(this.url, {
             method: 'POST',
@@ -227,7 +223,7 @@ export default class QueryClient<T> {
               : { ...this.headers, 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T[];
@@ -250,7 +246,6 @@ export default class QueryClient<T> {
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/${id}`, {
             method: 'PATCH',
@@ -263,7 +258,7 @@ export default class QueryClient<T> {
               : { ...this.headers, 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T;
@@ -282,7 +277,6 @@ export default class QueryClient<T> {
   updateMany(body: Partial<T>[], token?: string): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(this.url, {
             method: 'PATCH',
@@ -295,7 +289,7 @@ export default class QueryClient<T> {
               : { ...this.headers, 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T[];
@@ -314,7 +308,6 @@ export default class QueryClient<T> {
   deleteById(id: string, token?: string): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/${id}`, {
             method: 'DELETE',
@@ -322,7 +315,7 @@ export default class QueryClient<T> {
               ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T;
@@ -341,7 +334,6 @@ export default class QueryClient<T> {
   deleteMany(body: string[], token?: string): Promise<MicrogenResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}?recordIds=${body.join(',')}`, {
             method: 'DELETE',
@@ -349,7 +341,7 @@ export default class QueryClient<T> {
               ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T[];
@@ -372,7 +364,6 @@ export default class QueryClient<T> {
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/${id}`, {
             method: 'LINK',
@@ -385,7 +376,7 @@ export default class QueryClient<T> {
               : { ...this.headers, 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T;
@@ -408,7 +399,6 @@ export default class QueryClient<T> {
   ): Promise<MicrogenSingleResponse<T>> {
     return new Promise(async (resolve) => {
       try {
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/${id}`, {
             method: 'UNLINK',
@@ -421,7 +411,7 @@ export default class QueryClient<T> {
               : { ...this.headers, 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as T;
@@ -444,14 +434,13 @@ export default class QueryClient<T> {
     return new Promise(async (resolve) => {
       try {
         const query = this._filter(option);
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/count${query ? '?' + query : ''}`, {
             headers: token
               ? { ...this.headers, Authorization: `Bearer ${token}` }
               : this.headers,
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as MicrogenCount;

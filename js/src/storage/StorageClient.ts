@@ -4,7 +4,7 @@ import {
   Storage,
 } from './lib/types';
 import { AuthClient } from '../auth';
-import httpsAgent from './lib/httpsAgent';
+import getDispatcher from '../lib/dispatcher';
 
 class FailedHTTPResponse extends Error {
   public status: number;
@@ -94,7 +94,6 @@ export default class StorageClient {
             : fileName,
         );
 
-        const dispatcher = await httpsAgent();
         const res = await this._checkResponse(
           await fetch(`${this.url}/upload`, {
             method: 'POST',
@@ -103,7 +102,7 @@ export default class StorageClient {
               : this._getHeaders(),
             body: form,
             // @ts-expect-error
-            dispatcher,
+            dispatcher: await getDispatcher(),
           }),
         );
         const data = (await res.json()) as Storage;
