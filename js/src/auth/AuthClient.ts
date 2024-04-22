@@ -1,6 +1,7 @@
 import qs from 'qs';
 
 import type {
+  AuthRegolResponse,
   AuthResponse,
   AuthResponseFailure,
   GetUserOption,
@@ -300,6 +301,35 @@ export default class AuthClient {
       const message = data.message;
       return {
         message,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
+  }
+
+  async loginWithRegolQR(body: {
+    deviceId: string;
+    deviceModel: string;
+    deviceName: string;
+    deviceOs: string;
+    deviceVersion: string;
+    platformName: string;
+  }): Promise<AuthRegolResponse> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/auth/login/regol/qr`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as { content: string };
+
+      const content = data.content;
+      return {
+        content,
         status: res.status,
         statusText: res.statusText,
       };

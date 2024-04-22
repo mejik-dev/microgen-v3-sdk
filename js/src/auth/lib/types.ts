@@ -26,6 +26,20 @@ export interface TokenResponse<T> {
   user: T;
 }
 
+export interface AuthRegolResponseFailure extends AuthResponseBase {
+  error?: AuthError;
+  content?: null;
+}
+
+export interface AuthRegolResponseSuccess extends AuthResponseBase {
+  error?: AuthError;
+  content: string;
+}
+
+export type AuthRegolResponse =
+  | AuthRegolResponseSuccess
+  | AuthRegolResponseFailure;
+
 export interface ProfileResponseSuccess<T> extends AuthResponseBase {
   error?: null;
   user?: T;

@@ -4,7 +4,9 @@ import type {
   DisconnectCallback,
   RealtimeCallback,
   RealtimeClient,
+  RealtimeRegolCallback,
   SubscribeOption,
+  SubscribeRegolOption,
 } from '../../realtime';
 
 export default class Realtime {
@@ -26,8 +28,8 @@ export default class Realtime {
     return this._realtime.subscribe<T>(
       name,
       {
-        where: option?.where,
         event: option?.event,
+        where: option?.where,
         token: option?.token ?? this._auth.token(),
       },
       callback,
@@ -38,5 +40,25 @@ export default class Realtime {
 
   unsubscribe(key: string): boolean {
     return this._realtime.unsubscribe(key);
+  }
+
+  subscribeRegol(
+    deviceId: string,
+    option: SubscribeRegolOption,
+    callback: RealtimeRegolCallback,
+    onDisconnect?: DisconnectCallback,
+    onConnect?: ConnectCallback,
+  ) {
+    return this._realtime.subscribeRegol(
+      deviceId,
+      { event: option?.event },
+      callback,
+      onDisconnect,
+      onConnect,
+    );
+  }
+
+  unsubscribeRegol(key: string): boolean {
+    return this._realtime.unsubscribeRegol(key);
   }
 }
