@@ -15,7 +15,10 @@ export type RealtimeEventTypes =
   | 'UNLINK_RECORD'
   | '*';
 
-export type RealtimeRegolEventTypes = 'USER_LOGGED_IN' | 'USER_LOGGED_OUT';
+export type RealtimeRegolEventTypes =
+  | 'USER_LOGGED_IN'
+  | 'USER_LOGGED_OUT'
+  | '*';
 
 export interface RealtimeMessage {
   event:
