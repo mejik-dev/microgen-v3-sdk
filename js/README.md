@@ -357,9 +357,7 @@ const { data, error } = await microgen.storage.upload(
 ### Get `tableId` by Table Name
 
 ```js
-const tableId = await microgen.realtime.getTableId('posts');
-
-console.log(tableId);
+const { tableId, error } = await microgen.realtime.getTableId('posts');
 ```
 
 ### Subscribe

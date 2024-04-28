@@ -43,7 +43,7 @@ describe('Client', () => {
   let id: string;
   let secondId: string;
   let ids: string[];
-  let tableId: string;
+  let key: string;
 
   const login = () => {
     return microgen.auth.login<User>({
@@ -243,24 +243,29 @@ describe('Client', () => {
   });
 
   test('realtime get tableId', async () => {
-    tableId = await microgen.realtime.getTableId(SERVICE_NAME);
-    expect(tableId).toBeTruthy();
+    const { tableId } = await microgen.realtime.getTableId(SERVICE_NAME);
+
+    if (tableId) {
+      key = tableId;
+    }
+
+    expect(key).toBeTruthy;
   });
 
   test('realtime subscribe', () => {
     microgen.realtime.subscribe<Todo>(
-      tableId,
+      key,
       { event: '*', where: { name: 'tes' } },
       (message) => {
         console.log(message);
       },
     );
-    expect(tableId).toBeTruthy();
+    expect(key).toBeTruthy();
   });
 
   test('realtime unsubscribe', () => {
-    microgen.realtime.unsubscribe(tableId);
-    expect(tableId).toBeTruthy();
+    microgen.realtime.unsubscribe(key);
+    expect(key).toBeTruthy();
   });
 });
 

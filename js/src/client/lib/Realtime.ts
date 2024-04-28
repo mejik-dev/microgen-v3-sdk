@@ -5,6 +5,7 @@ import type {
   RealtimeCallback,
   RealtimeClient,
   RealtimeRegolCallback,
+  RealtimeResponse,
   SubscribeOption,
   SubscribeRegolOption,
 } from '../../realtime';
@@ -18,7 +19,7 @@ export default class Realtime {
     this._auth = auth;
   }
 
-  async getTableId(tableName: string): Promise<string> {
+  async getTableId(tableName: string): Promise<RealtimeResponse> {
     return this._realtime.getTableId(tableName);
   }
 

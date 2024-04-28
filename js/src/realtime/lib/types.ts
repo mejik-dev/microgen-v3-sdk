@@ -1,3 +1,26 @@
+interface RealtimeResponseBase {
+  status: number;
+  statusText: string;
+}
+
+export interface RealtimeError {
+  message: string;
+}
+
+export interface RealtimeResponseFailure extends RealtimeResponseBase {
+  error?: RealtimeError;
+  tableId?: null;
+}
+
+export interface RealtimeResponseSuccess extends RealtimeResponseBase {
+  error?: RealtimeError;
+  tableId: string;
+}
+
+export type RealtimeResponse =
+  | RealtimeResponseSuccess
+  | RealtimeResponseFailure;
+
 export interface RealtimeClientOption {
   url: string;
   apiKey: string;

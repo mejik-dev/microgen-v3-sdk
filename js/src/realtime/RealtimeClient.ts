@@ -7,6 +7,8 @@ import type {
   RealtimeCallback,
   RealtimeClientOption,
   RealtimeRegolCallback,
+  RealtimeResponse,
+  RealtimeResponseFailure,
   SubscribeOption,
   SubscribeRegolOption,
 } from './lib/types';
@@ -34,6 +36,26 @@ export default class RealtimeClient {
     this.option = option;
   }
 
+  private _error(error: any): RealtimeResponseFailure {
+    if (error instanceof FailedHTTPResponse) {
+      return {
+        error: {
+          message: error.data,
+        },
+        status: error.status,
+        statusText: error.statusText,
+      };
+    }
+
+    return {
+      error: {
+        message: 'failed',
+      },
+      status: 500,
+      statusText: 'FAILED',
+    };
+  }
+
   private async _checkResponse(response: Response) {
     if (!response.ok) {
       throw new FailedHTTPResponse(
@@ -46,7 +68,7 @@ export default class RealtimeClient {
     return response;
   }
 
-  async getTableId(tableName: string): Promise<string> {
+  async getTableId(tableName: string): Promise<RealtimeResponse> {
     try {
       const res = await this._checkResponse(
         await fetch(
@@ -55,9 +77,13 @@ export default class RealtimeClient {
       );
       const data = (await res.json()) as { name: string };
 
-      return data.name.split(':')[1];
+      return {
+        tableId: data.name.split(':')[1],
+        status: res.status,
+        statusText: res.statusText,
+      };
     } catch (error) {
-      throw error instanceof FailedHTTPResponse ? error.data : error;
+      return this._error(error);
     }
   }
 
