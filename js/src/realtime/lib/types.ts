@@ -30,14 +30,12 @@ export interface RealtimeMessage {
     | 'ERROR';
   payload?: any;
   error?: ErrorMessage;
-  key?: string;
 }
 
 export interface RealtimeRegolMessage {
   event: 'USER_LOGGED_IN' | 'USER_LOGGED_OUT' | 'ERROR';
   payload?: any;
   error?: ErrorMessage;
-  key?: string;
 }
 
 export type RealtimeCallback = (m: RealtimeMessage) => any;

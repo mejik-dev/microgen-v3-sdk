@@ -46,103 +46,101 @@ export default class RealtimeClient {
     return response;
   }
 
-  async subscribe<T>(
-    name: string,
-    { event, where, token }: SubscribeOption<T>,
-    callback: RealtimeCallback,
-    onDisconnect?: DisconnectCallback,
-    onConnect?: ConnectCallback,
-  ): Promise<string> {
+  async getTableId(tableName: string): Promise<string> {
     try {
-      const lastSubscribe = this.subscriptions.get(name);
-
-      if (lastSubscribe) {
-        lastSubscribe.close();
-      }
-
-      let filter = '';
-
-      if (where) {
-        filter = ':' + qs.stringify(where, { encodeValuesOnly: true });
-      }
-
-      const key = `${name.toLowerCase().replace(' ', '-')}-${String(
-        new Date().getTime(),
-      )}`;
       const res = await this._checkResponse(
-        await fetch(`${this.option.url}/channel/${this.option.apiKey}/${name}`),
+        await fetch(
+          `${this.option.url}/channel/${this.option.apiKey}/${tableName}`,
+        ),
       );
       const data = (await res.json()) as { name: string };
-      const channel = `${data.name}:${event || '*'}${filter}`;
 
-      const websocket = new WebSocket(
-        `${this.option.url.replace('http', 'ws')}/connection/${
-          this.option.apiKey
-        }/websocket${token ? `?token=${token}` : ''}`,
-      );
-
-      websocket.onopen = () => {
-        websocket.send(
-          JSON.stringify({
-            params: { name: 'js' },
-            id: 1,
-          }),
-        );
-        websocket.send(
-          JSON.stringify({
-            method: 1,
-            params: { channel },
-            id: 2,
-          }),
-        );
-        onConnect?.();
-      };
-
-      websocket.onclose = () => {
-        onDisconnect?.();
-      };
-
-      websocket.onerror = (e) => {
-        callback?.({
-          key,
-          event: 'ERROR',
-          error: e.error,
-        });
-      };
-
-      websocket.onmessage = (e) => {
-        try {
-          const value = JSON.parse(String(e.data));
-
-          if (value?.result?.data?.data?.eventType) {
-            callback?.({
-              key,
-              event: value.result.data.data.eventType,
-              payload: value.result.data.data.payload,
-            });
-          }
-        } catch (error) {
-          // do nothing
-        }
-      };
-
-      this.subscriptions.set(key, websocket);
-
-      return key;
+      return data.name.split(':')[1];
     } catch (error) {
       throw error instanceof FailedHTTPResponse ? error.data : error;
     }
   }
 
-  unsubscribe(key: string): boolean {
-    const subscription = this.subscriptions.get(key);
+  subscribe<T>(
+    tableId: string,
+    { event, where, token }: SubscribeOption<T>,
+    callback: RealtimeCallback,
+    onDisconnect?: DisconnectCallback,
+    onConnect?: ConnectCallback,
+  ) {
+    const lastSubscribe = this.subscriptions.get(tableId);
+
+    if (lastSubscribe) {
+      lastSubscribe.close();
+    }
+
+    let filter = '';
+
+    if (where) {
+      filter = ':' + qs.stringify(where, { encodeValuesOnly: true });
+    }
+
+    const channel = `query:${tableId}:${event || '*'}${filter}`;
+
+    const websocket = new WebSocket(
+      `${this.option.url.replace('http', 'ws')}/connection/${
+        this.option.apiKey
+      }/websocket${token ? `?token=${token}` : ''}`,
+    );
+
+    websocket.onopen = () => {
+      websocket.send(
+        JSON.stringify({
+          params: { name: 'js' },
+          id: 1,
+        }),
+      );
+      websocket.send(
+        JSON.stringify({
+          method: 1,
+          params: { channel },
+          id: 2,
+        }),
+      );
+      onConnect?.();
+    };
+
+    websocket.onclose = () => {
+      onDisconnect?.();
+    };
+
+    websocket.onerror = (e) => {
+      callback?.({
+        event: 'ERROR',
+        error: e.error,
+      });
+    };
+
+    websocket.onmessage = (e) => {
+      try {
+        const value = JSON.parse(String(e.data));
+
+        if (value?.result?.data?.data?.eventType) {
+          callback?.({
+            event: value.result.data.data.eventType,
+            payload: value.result.data.data.payload,
+          });
+        }
+      } catch (error) {
+        // do nothing
+      }
+    };
+
+    this.subscriptions.set(tableId, websocket);
+  }
+
+  unsubscribe(tableId: string) {
+    const subscription = this.subscriptions.get(tableId);
 
     if (subscription) {
       subscription.close();
-      this.subscriptions.delete(key);
+      this.subscriptions.delete(tableId);
     }
-
-    return subscription ? true : false;
   }
 
   subscribeRegol(
@@ -151,14 +149,13 @@ export default class RealtimeClient {
     callback: RealtimeRegolCallback,
     onDisconnect?: DisconnectCallback,
     onConnect?: ConnectCallback,
-  ): string {
+  ) {
     const lastSubscribe = this.regolSubscriptions.get(deviceId);
 
     if (lastSubscribe) {
       lastSubscribe.close();
     }
 
-    const key = deviceId;
     const channel = `auth:${deviceId}:${event || '*'}`;
 
     const websocket = new WebSocket(
@@ -190,7 +187,6 @@ export default class RealtimeClient {
 
     websocket.onerror = (e) => {
       callback?.({
-        key,
         event: 'ERROR',
         error: e.error,
       });
@@ -202,7 +198,6 @@ export default class RealtimeClient {
 
         if (value?.result?.data?.data?.eventType) {
           callback?.({
-            key,
             event: value.result.data.data.eventType,
             payload: value.result.data.data.payload,
           });
@@ -212,19 +207,15 @@ export default class RealtimeClient {
       }
     };
 
-    this.regolSubscriptions.set(key, websocket);
-
-    return key;
+    this.regolSubscriptions.set(deviceId, websocket);
   }
 
-  unsubscribeRegol(key: string): boolean {
-    const subscription = this.regolSubscriptions.get(key);
+  unsubscribeRegol(deviceId: string) {
+    const subscription = this.regolSubscriptions.get(deviceId);
 
     if (subscription) {
       subscription.close();
-      this.regolSubscriptions.delete(key);
+      this.regolSubscriptions.delete(deviceId);
     }
-
-    return subscription ? true : false;
   }
 }

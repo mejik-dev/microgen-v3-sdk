@@ -354,10 +354,18 @@ const { data, error } = await microgen.storage.upload(
 - `LINK_RECORD`
 - `UNLINK_RECORD`
 
+### Get `tableId` by Table Name
+
+```js
+const tableId = await microgen.realtime.getTableId('posts');
+
+console.log(tableId);
+```
+
 ### Subscribe
 
 ```js
-microgen.realtime.subscribe('posts', { event: '*' }, (message) => {
+microgen.realtime.subscribe(tableId, { event: '*' }, (message) => {
   if (message.error) {
     console.log(message.error);
     return;
@@ -370,20 +378,7 @@ microgen.realtime.subscribe('posts', { event: '*' }, (message) => {
 ### Unsubscribe
 
 ```js
-const key = await microgen.realtime.subscribe(
-  'posts',
-  { event: '*' },
-  (message) => {
-    if (message.error) {
-      console.log(message.error);
-      return;
-    }
-
-    console.log(message.event, message.payload);
-  },
-);
-
-microgen.realtime.unsubscribe(key);
+microgen.realtime.unsubscribe(tableId);
 ```
 
 ## Field

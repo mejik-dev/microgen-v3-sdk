@@ -18,15 +18,19 @@ export default class Realtime {
     this._auth = auth;
   }
 
+  async getTableId(tableName: string): Promise<string> {
+    return this._realtime.getTableId(tableName);
+  }
+
   subscribe<T>(
-    name: string,
+    tableId: string,
     option: SubscribeOption<T>,
     callback: RealtimeCallback,
     onDisconnect?: DisconnectCallback,
     onConnect?: ConnectCallback,
   ) {
-    return this._realtime.subscribe<T>(
-      name,
+    this._realtime.subscribe<T>(
+      tableId,
       {
         event: option?.event,
         where: option?.where,
@@ -38,8 +42,8 @@ export default class Realtime {
     );
   }
 
-  unsubscribe(key: string): boolean {
-    return this._realtime.unsubscribe(key);
+  unsubscribe(tableId: string) {
+    this._realtime.unsubscribe(tableId);
   }
 
   subscribeRegol(
@@ -49,7 +53,7 @@ export default class Realtime {
     onDisconnect?: DisconnectCallback,
     onConnect?: ConnectCallback,
   ) {
-    return this._realtime.subscribeRegol(
+    this._realtime.subscribeRegol(
       deviceId,
       { event: option?.event },
       callback,
@@ -58,7 +62,7 @@ export default class Realtime {
     );
   }
 
-  unsubscribeRegol(key: string): boolean {
-    return this._realtime.unsubscribeRegol(key);
+  unsubscribeRegol(deviceId: string) {
+    this._realtime.unsubscribeRegol(deviceId);
   }
 }
