@@ -40,12 +40,12 @@ export type MicrogenSingleResponse<T> =
 type FieldLookup<T> = {
   [P in keyof Partial<T> | string]:
     | {
-        ['$lookup']: Lookup<Record<string, unknown>>;
+        ['$lookup']: QueryLookup<Record<string, unknown>>;
       }
     | '*';
 };
 
-export interface Lookup<T> {
+export interface QueryLookup<T> {
   '*'?: (FieldLookup<T> | keyof T)[];
   _id?: (FieldLookup<T> | keyof T | '*')[];
 }
@@ -95,7 +95,7 @@ export interface FindOption<T> {
   where?: Where<T>;
   sort?: { [P in keyof Partial<T>]: 1 | -1 }[];
   select?: (keyof Partial<T>)[];
-  lookup?: (keyof Partial<T>)[] | '*' | Lookup<T>;
+  lookup?: (keyof Partial<T>)[] | '*' | QueryLookup<T>;
   or?: Where<T>[];
 }
 
@@ -106,7 +106,7 @@ export interface CountOption<T> {
 
 export interface GetByIdOption<T> {
   select?: (keyof Partial<T>)[];
-  lookup?: (keyof Partial<T>)[] | '*' | Lookup<T>;
+  lookup?: (keyof Partial<T>)[] | '*' | QueryLookup<T>;
 }
 
 export interface QueryClientOption {

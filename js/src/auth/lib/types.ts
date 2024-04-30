@@ -52,16 +52,16 @@ export type ProfileResponse<T> =
 type FieldLookup<T> = {
   [P in keyof Partial<T> | string]:
     | {
-        ['$lookup']: Lookup<Record<string, unknown>>;
+        ['$lookup']: AuthLookup<Record<string, unknown>>;
       }
     | '*';
 };
 
-export interface Lookup<T> {
+export interface AuthLookup<T> {
   '*'?: (FieldLookup<T> | keyof T)[];
   _id?: (FieldLookup<T> | keyof T | '*')[];
 }
 
 export interface GetUserOption<T> {
-  lookup?: (keyof Partial<T>)[] | '*' | Lookup<T>;
+  lookup?: (keyof Partial<T>)[] | '*' | AuthLookup<T>;
 }
