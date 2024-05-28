@@ -50,13 +50,11 @@ export type ProfileResponse<T> =
   | AuthResponseFailure;
 
 type LookupRecord =
-  | '*'
   | string
   | string[]
   | Partial<
       Record<
         '*' | '_id',
-        | '*'
         | string
         | (
             | string
