@@ -41,68 +41,73 @@ type LookupRecord =
   | '*'
   | string
   | string[]
-  | Record<
-      '*' | '_id',
-      | '*'
-      | string
-      | (
-          | string
-          | Record<
-              string,
-              | {
-                  $select?: string[];
-                  $lookup?: LookupRecord;
-                }
-              | undefined
-            >
-        )
-      | undefined
+  | Partial<
+      Record<
+        '*' | '_id',
+        | '*'
+        | string
+        | (
+            | string
+            | Partial<
+                Record<
+                  string,
+                  {
+                    $select?: string[];
+                    $lookup?: LookupRecord;
+                  }
+                >
+              >
+          )
+      >
     >;
 
-export type QueryLookup<T> = Record<
-  '*' | '_id',
-  | '*'
-  | keyof T
-  | (
-      | keyof T
-      | Record<
-          keyof T,
-          | {
-              $select?: string[];
-              $lookup?: LookupRecord;
-            }
-          | undefined
-        >
-    )[]
-  | undefined
+export type QueryLookup<T> = Partial<
+  Record<
+    '*' | '_id',
+    | '*'
+    | keyof T
+    | (
+        | keyof T
+        | Partial<
+            Record<
+              keyof T,
+              {
+                $select?: string[];
+                $lookup?: LookupRecord;
+              }
+            >
+          >
+      )[]
+  >
 >;
 
-type Where<T> = Record<
-  keyof T,
-  | string
-  | number
-  | boolean
-  | {
-      ['$in']?: (string | number | boolean)[];
-      ['$nin']?: (string | number | boolean)[];
-      ['$ne']?: string | number | boolean;
-      ['$contains']?: string | number | boolean;
-      ['$notContains']?: string | number | boolean;
-      ['$lt']?: number;
-      ['$lte']?: number;
-      ['$gt']?: number;
-      ['$gte']?: number;
-      ['isEmpty']?: boolean;
-      ['isNotEmpty']?: boolean;
-    }
-  | undefined
+type Where<T> = Partial<
+  Record<
+    keyof T,
+    | string
+    | number
+    | boolean
+    | {
+        ['$in']?: (string | number | boolean)[];
+        ['$nin']?: (string | number | boolean)[];
+        ['$ne']?: string | number | boolean;
+        ['$contains']?: string | number | boolean;
+        ['$notContains']?: string | number | boolean;
+        ['$lt']?: number;
+        ['$lte']?: number;
+        ['$gt']?: number;
+        ['$gte']?: number;
+        ['isEmpty']?: boolean;
+        ['isNotEmpty']?: boolean;
+      }
+  >
 >;
 
 export interface FindOption<T> {
   limit?: number;
   skip?: number;
   where?: Where<T>;
-  sort?: Record<keyof T, 1 | -1 | undefined>[];
+  sort?: Partial<Record<keyof T, 1 | -1>>[];
   select?: (keyof T)[];
   lookup?: keyof T | (keyof T)[] | '*' | QueryLookup<T>;
   or?: Where<T>[];
