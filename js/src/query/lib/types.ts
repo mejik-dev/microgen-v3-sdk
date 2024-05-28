@@ -60,11 +60,11 @@ type LookupRecord =
 export type QueryLookup<T> = Record<
   '*' | '_id',
   | '*'
-  | keyof T
+  | keyof Partial<T>
   | (
-      | keyof T
+      | keyof Partial<T>
       | Record<
-          keyof T,
+          keyof Partial<T>,
           {
             $select?: string[];
             $lookup?: LookupRecord;
@@ -74,7 +74,7 @@ export type QueryLookup<T> = Record<
 >;
 
 type Where<T> = Record<
-  keyof T,
+  keyof Partial<T>,
   | string
   | number
   | boolean
@@ -97,9 +97,9 @@ export interface FindOption<T> {
   limit?: number;
   skip?: number;
   where?: Where<T>;
-  sort?: Record<keyof T, 1 | -1>[];
-  select?: (keyof T)[];
-  lookup?: keyof T | (keyof T)[] | '*' | QueryLookup<T>;
+  sort?: Record<keyof Partial<T>, 1 | -1>[];
+  select?: (keyof Partial<T>)[];
+  lookup?: keyof Partial<T> | (keyof Partial<T>)[] | '*' | QueryLookup<T>;
   or?: Where<T>[];
 }
 
@@ -109,8 +109,8 @@ export interface CountOption<T> {
 }
 
 export interface GetByIdOption<T> {
-  select?: (keyof T)[];
-  lookup?: keyof T | (keyof T)[] | '*' | QueryLookup<T>;
+  select?: (keyof Partial<T>)[];
+  lookup?: keyof Partial<T> | (keyof Partial<T>)[] | '*' | QueryLookup<T>;
 }
 
 export interface QueryClientOption {
