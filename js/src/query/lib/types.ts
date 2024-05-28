@@ -61,25 +61,29 @@ type LookupRecord =
       >
     >;
 
-export type QueryLookup<T> = Partial<
-  Record<
-    '*' | '_id',
-    | '*'
-    | keyof T
-    | (
+export type QueryLookup<T> =
+  | '*'
+  | keyof T
+  | (keyof T)[]
+  | Partial<
+      Record<
+        '*' | '_id',
+        | '*'
         | keyof T
-        | Partial<
-            Record<
-              keyof T,
-              {
-                $select?: string[];
-                $lookup?: LookupRecord;
-              }
-            >
-          >
-      )[]
-  >
->;
+        | (
+            | keyof T
+            | Partial<
+                Record<
+                  keyof T,
+                  {
+                    $select?: string[];
+                    $lookup?: LookupRecord;
+                  }
+                >
+              >
+          )[]
+      >
+    >;
 
 type Where<T> = Partial<
   Record<
@@ -88,8 +92,8 @@ type Where<T> = Partial<
     | number
     | boolean
     | {
-        ['$in']?: (string | number | boolean)[];
-        ['$nin']?: (string | number | boolean)[];
+        ['$in']?: string | number | boolean | (string | number | boolean)[];
+        ['$nin']?: string | number | boolean | (string | number | boolean)[];
         ['$ne']?: string | number | boolean;
         ['$contains']?: string | number | boolean;
         ['$notContains']?: string | number | boolean;
