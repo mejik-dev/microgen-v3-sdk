@@ -37,65 +37,69 @@ export type MicrogenSingleResponse<T> =
   | MicrogenSingleResponseSuccess<T>
   | MicrogenResponseFailure;
 
-type FieldLookup<T> = {
-  [P in keyof Partial<T> | string]:
-    | {
-        ['$lookup']: QueryLookup<Record<string, unknown>>;
-      }
-    | '*';
-};
+type LookupRecord =
+  | '*'
+  | string
+  | string[]
+  | Record<
+      '*' | '_id',
+      | '*'
+      | string
+      | (
+          | string
+          | Record<
+              string,
+              {
+                $select?: string[];
+                $lookup?: LookupRecord;
+              }
+            >
+        )
+    >;
 
-export interface QueryLookup<T> {
-  '*'?: (FieldLookup<T> | keyof T)[];
-  _id?: (FieldLookup<T> | keyof T | '*')[];
-}
+export type QueryLookup<T> = Record<
+  '*' | '_id',
+  | '*'
+  | keyof T
+  | (
+      | keyof T
+      | Record<
+          keyof T,
+          {
+            $select?: string[];
+            $lookup?: LookupRecord;
+          }
+        >
+    )[]
+>;
 
-type Where<T> =
-  | Partial<T>
+type Where<T> = Record<
+  keyof T,
+  | string
+  | number
+  | boolean
   | {
-      [P in keyof Partial<T> | string]:
-        | {
-            ['$in']?: (string | number | boolean)[];
-          }
-        | {
-            ['$nin']?: (string | number | boolean)[];
-          }
-        | {
-            ['$ne']?: string | number | boolean;
-          }
-        | {
-            ['$contains']?: string | number | boolean;
-          }
-        | {
-            ['$notContains']?: string | number | boolean;
-          }
-        | {
-            ['$lt']?: number;
-          }
-        | {
-            ['$lte']?: number;
-          }
-        | {
-            ['$gt']?: number;
-          }
-        | {
-            ['$gte']?: number;
-          }
-        | {
-            ['isEmpty']?: boolean;
-          }
-        | {
-            ['isNotEmpty']?: boolean;
-          };
-    };
+      ['$in']?: (string | number | boolean)[];
+      ['$nin']?: (string | number | boolean)[];
+      ['$ne']?: string | number | boolean;
+      ['$contains']?: string | number | boolean;
+      ['$notContains']?: string | number | boolean;
+      ['$lt']?: number;
+      ['$lte']?: number;
+      ['$gt']?: number;
+      ['$gte']?: number;
+      ['isEmpty']?: boolean;
+      ['isNotEmpty']?: boolean;
+    }
+>;
 
 export interface FindOption<T> {
   limit?: number;
   skip?: number;
   where?: Where<T>;
-  sort?: { [P in keyof Partial<T>]: 1 | -1 }[];
-  select?: (keyof Partial<T>)[];
-  lookup?: (keyof Partial<T>)[] | '*' | QueryLookup<T>;
+  sort?: Record<keyof T, 1 | -1>[];
+  select?: (keyof T)[];
+  lookup?: keyof T | (keyof T)[] | '*' | QueryLookup<T>;
   or?: Where<T>[];
 }
 
@@ -105,8 +109,8 @@ export interface CountOption<T> {
 }
 
 export interface GetByIdOption<T> {
-  select?: (keyof Partial<T>)[];
-  lookup?: (keyof Partial<T>)[] | '*' | QueryLookup<T>;
+  select?: (keyof T)[];
+  lookup?: keyof T | (keyof T)[] | '*' | QueryLookup<T>;
 }
 
 export interface QueryClientOption {
