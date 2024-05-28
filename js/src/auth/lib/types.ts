@@ -49,19 +49,54 @@ export type ProfileResponse<T> =
   | ProfileResponseSuccess<T>
   | AuthResponseFailure;
 
-type FieldLookup<T> = {
-  [P in keyof Partial<T> | string]:
-    | {
-        ['$lookup']: AuthLookup<Record<string, unknown>>;
-      }
-    | '*';
-};
+type LookupRecord =
+  | '*'
+  | string
+  | string[]
+  | Partial<
+      Record<
+        '*' | '_id',
+        | '*'
+        | string
+        | (
+            | string
+            | Partial<
+                Record<
+                  string,
+                  {
+                    $select?: string[];
+                    $lookup?: LookupRecord;
+                  }
+                >
+              >
+          )[]
+      >
+    >;
 
-export interface AuthLookup<T> {
-  '*'?: (FieldLookup<T> | keyof T)[];
-  _id?: (FieldLookup<T> | keyof T | '*')[];
-}
+type Lookup<T> =
+  | '*'
+  | keyof T
+  | (keyof T)[]
+  | Partial<
+      Record<
+        '*' | '_id',
+        | '*'
+        | keyof T
+        | (
+            | keyof T
+            | Partial<
+                Record<
+                  keyof T,
+                  {
+                    $select?: string[];
+                    $lookup?: LookupRecord;
+                  }
+                >
+              >
+          )[]
+      >
+    >;
 
 export interface GetUserOption<T> {
-  lookup?: (keyof Partial<T>)[] | '*' | AuthLookup<T>;
+  lookup?: Lookup<T>;
 }

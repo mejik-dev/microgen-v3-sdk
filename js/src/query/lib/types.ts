@@ -97,10 +97,10 @@ type Where<T> = Partial<
         ['$ne']?: string | number | boolean;
         ['$contains']?: string | number | boolean;
         ['$notContains']?: string | number | boolean;
-        ['$lt']?: number;
-        ['$lte']?: number;
-        ['$gt']?: number;
-        ['$gte']?: number;
+        ['$lt']?: number | string;
+        ['$lte']?: number | string;
+        ['$gt']?: number | string;
+        ['$gte']?: number | string;
         ['isEmpty']?: boolean;
         ['isNotEmpty']?: boolean;
       }
