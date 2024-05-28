@@ -1,6 +1,6 @@
 {
   "name": "microgen-v3-sdk",
-  "version": "0.13.5",
+  "version": "0.13.6",
   "description": "Microgen SDK",
   "main": "dist/main/index.js",
   "module": "dist/module/index.js",
