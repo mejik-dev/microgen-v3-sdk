@@ -57,11 +57,11 @@ type LookupRecord =
                   }
                 >
               >
-          )
+          )[]
       >
     >;
 
-export type QueryLookup<T> =
+type Lookup<T> =
   | '*'
   | keyof T
   | (keyof T)[]
@@ -113,7 +113,7 @@ export interface FindOption<T> {
   where?: Where<T>;
   sort?: Partial<Record<keyof T, 1 | -1>>[];
   select?: (keyof T)[];
-  lookup?: keyof T | (keyof T)[] | '*' | QueryLookup<T>;
+  lookup?: Lookup<T>;
   or?: Where<T>[];
 }
 
@@ -124,7 +124,7 @@ export interface CountOption<T> {
 
 export interface GetByIdOption<T> {
   select?: (keyof T)[];
-  lookup?: keyof T | (keyof T)[] | '*' | QueryLookup<T>;
+  lookup?: Lookup<T>;
 }
 
 export interface QueryClientOption {
