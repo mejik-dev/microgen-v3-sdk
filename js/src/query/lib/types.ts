@@ -38,13 +38,11 @@ export type MicrogenSingleResponse<T> =
   | MicrogenResponseFailure;
 
 type LookupRecord =
-  | '*'
   | string
   | string[]
   | Partial<
       Record<
         '*' | '_id',
-        | '*'
         | string
         | (
             | string
