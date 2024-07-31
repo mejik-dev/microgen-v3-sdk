@@ -56,7 +56,15 @@ const { user, token, error } = await microgen.auth.login({
 
 ```js
 const { user, token, error } = await microgen.auth.loginWithGoogle({
-  token: 'ya29.a0ARrdaM9Mxv6lZ5T5aKzrJTbJf7_XXXX',
+  token: '*******************',
+});
+```
+
+### Login with Facebook
+
+```js
+const { user, token, error } = await microgen.auth.loginWithFacebook({
+  token: '*******************',
 });
 ```
 

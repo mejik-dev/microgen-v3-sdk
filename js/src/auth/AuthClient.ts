@@ -365,6 +365,33 @@ export default class AuthClient {
     }
   }
 
+  async loginWithFacebook<T = any>(body: {
+    token: string;
+  }): Promise<AuthResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(`${this.url}/auth/login/facebook`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
+      );
+      const data = (await res.json()) as TokenResponse<T>;
+
+      this.saveToken(data.token);
+      const user = data.user;
+
+      return {
+        user,
+        status: res.status,
+        statusText: res.statusText,
+        token: data.token,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
+  }
+
   private _setToken(token: string) {
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.setItem(STORAGE_KEY, token);
