@@ -52,6 +52,27 @@ const { user, token, error } = await microgen.auth.login({
 });
 ```
 
+### Login with Google
+
+```js
+const { user, token, error } = await microgen.auth.loginWithGoogle({
+  token: 'ya29.a0ARrdaM9Mxv6lZ5T5aKzrJTbJf7_XXXX',
+});
+```
+
+### Login with Regol QR
+
+```js
+const { content, error } = await microgen.auth.loginWithRegolQR({
+  deviceId: 'B2C3-D4E5-F6G7-8901',
+  deviceModel: 'SurfacePro8',
+  deviceName: 'User Surface Pro 8',
+  deviceOs: 'Windows',
+  deviceVersion: '11.0.22000.100',
+  platformName: 'desktop',
+});
+```
+
 ### User
 
 ```js
