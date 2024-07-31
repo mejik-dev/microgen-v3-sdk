@@ -135,6 +135,7 @@ export default class AuthClient {
 
       this.saveToken(data.token);
       const user = data.user;
+
       return {
         user,
         status: res.status,
