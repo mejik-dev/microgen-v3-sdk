@@ -40,7 +40,7 @@ export default class ReconnectingWebSocket {
     this.ws = new WebSocket(this.url, this.protocols);
 
     this.ws.onopen = (event: Event) => {
-      console.log('WebSocket connected');
+      console.log('socket connected');
       this.reconnectTimeout = 1000; // Reset timeout on successful connection
       this.dispatchEvent('open', event);
     };
@@ -50,13 +50,13 @@ export default class ReconnectingWebSocket {
     };
 
     this.ws.onclose = (event: CloseEvent) => {
-      console.log('WebSocket disconnected');
+      console.log('socket disconnected');
       this.dispatchEvent('close', event);
       this.reconnect();
     };
 
     this.ws.onerror = (error: ErrorEvent) => {
-      console.error('WebSocket error:', error);
+      console.error('socket error:', error);
       this.dispatchEvent('error', error);
       this.ws?.close();
     };
@@ -64,7 +64,7 @@ export default class ReconnectingWebSocket {
 
   private reconnect() {
     setTimeout(() => {
-      console.log('Reconnecting...');
+      console.log('reconnecting the socket...');
       this.connect();
       this.reconnectTimeout = Math.min(
         this.reconnectTimeout * 2,
@@ -82,6 +82,7 @@ export default class ReconnectingWebSocket {
   public removeEventListener(eventType: string, listener: EventListener) {
     if (this.eventListeners[eventType]) {
       const index = this.eventListeners[eventType].indexOf(listener);
+
       if (index !== -1) {
         this.eventListeners[eventType].splice(index, 1);
       }
@@ -103,7 +104,7 @@ export default class ReconnectingWebSocket {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(data);
     } else {
-      console.error('WebSocket is not open. ReadyState:', this.ws?.readyState);
+      console.error('socket is not open, readyState:', this.ws?.readyState);
     }
   }
 

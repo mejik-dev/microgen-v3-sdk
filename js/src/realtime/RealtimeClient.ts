@@ -1,4 +1,4 @@
-import WebSocket, { MessageEvent, ErrorEvent } from 'isomorphic-ws';
+import { MessageEvent, ErrorEvent } from 'isomorphic-ws';
 import qs from 'qs';
 
 import type {
@@ -31,7 +31,7 @@ export default class RealtimeClient {
   protected option: RealtimeClientOption;
 
   subscriptions = new Map<string, ReconnectingWebSocket>();
-  regolSubscriptions = new Map<string, WebSocket>();
+  regolSubscriptions = new Map<string, ReconnectingWebSocket>();
 
   constructor(option: RealtimeClientOption) {
     this.option = option;
@@ -184,13 +184,13 @@ export default class RealtimeClient {
 
     const channel = `auth:${deviceId}:${event || '*'}`;
 
-    const websocket = new WebSocket(
+    const websocket = new ReconnectingWebSocket(
       `${this.option.url.replace('http', 'ws')}/connection/${
         this.option.apiKey
       }/websocket`,
     );
 
-    websocket.onopen = () => {
+    websocket.addEventListener('open', () => {
       websocket.send(
         JSON.stringify({
           params: { name: 'js' },
@@ -205,22 +205,22 @@ export default class RealtimeClient {
         }),
       );
       onConnect?.();
-    };
+    });
 
-    websocket.onclose = () => {
+    websocket.addEventListener('close', () => {
       onDisconnect?.();
-    };
+    });
 
-    websocket.onerror = (e) => {
+    websocket.addEventListener('error', (e) => {
       callback?.({
         event: 'ERROR',
-        error: e.error,
+        error: (e as ErrorEvent).error,
       });
-    };
+    });
 
-    websocket.onmessage = (e) => {
+    websocket.addEventListener('message', (message) => {
       try {
-        const value = JSON.parse(String(e.data));
+        const value = JSON.parse(String((message as MessageEvent).data));
 
         if (value?.result?.data?.data?.eventType) {
           callback?.({
@@ -231,7 +231,7 @@ export default class RealtimeClient {
       } catch (error) {
         // do nothing
       }
-    };
+    });
 
     this.regolSubscriptions.set(deviceId, websocket);
   }
