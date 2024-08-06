@@ -39,27 +39,27 @@ export default class ReconnectingWebSocket {
   private connect() {
     this.ws = new WebSocket(this.url, this.protocols);
 
-    this.ws.on('open', (event: Event) => {
+    this.ws.onopen = (event: Event) => {
       console.log('WebSocket connected');
       this.reconnectTimeout = 1000; // Reset timeout on successful connection
       this.dispatchEvent('open', event);
-    });
+    };
 
-    this.ws.on('message', (message: MessageEvent) => {
+    this.ws.onmessage = (message: MessageEvent) => {
       this.dispatchEvent('message', message);
-    });
+    };
 
-    this.ws.on('close', (event: CloseEvent) => {
+    this.ws.onclose = (event: CloseEvent) => {
       console.log('WebSocket disconnected');
       this.dispatchEvent('close', event);
       this.reconnect();
-    });
+    };
 
-    this.ws.on('error', (error: ErrorEvent) => {
+    this.ws.onerror = (error: ErrorEvent) => {
       console.error('WebSocket error:', error);
       this.dispatchEvent('error', error);
       this.ws?.close();
-    });
+    };
   }
 
   private reconnect() {
