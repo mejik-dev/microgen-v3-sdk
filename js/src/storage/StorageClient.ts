@@ -38,6 +38,7 @@ export default class StorageClient {
       };
     }
 
+    console.log({ module: 'storage', error });
     return {
       error: {
         message: 'failed',

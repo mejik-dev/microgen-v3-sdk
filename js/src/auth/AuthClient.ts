@@ -50,6 +50,7 @@ export default class AuthClient {
       };
     }
 
+    console.log({ module: 'auth', error });
     return {
       error: {
         message: 'failed',

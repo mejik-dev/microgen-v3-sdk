@@ -39,6 +39,7 @@ export default class FieldClient<T> {
       };
     }
 
+    console.log({ module: 'field', error });
     return {
       error: {
         message: 'failed',
