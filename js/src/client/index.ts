@@ -1,13 +1,2 @@
-import type { MicrogenClientOptions } from './lib/types';
-import MicrogenClient from './MicrogenClient';
-
-/**
- * Creates a new Microgen Client.
- */
-const createClient = (options: MicrogenClientOptions) => {
-  return new MicrogenClient(options);
-};
-
+export { default as MicrogenClient } from './MicrogenClient';
 export * from './lib/types';
-
-export { createClient, MicrogenClient };

@@ -1,4 +1,4 @@
-import { MicrogenClient, createClient } from '../src';
+import { MicrogenClient } from '../src';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -33,10 +33,6 @@ interface User {
 
 test('it should create the client connection', async () => {
   expect(microgen).toBeDefined();
-});
-
-test('it should throw an error if no valid params are provided', async () => {
-  expect(() => createClient({ apiKey: '' })).toThrowError('');
 });
 
 describe('Client', () => {
