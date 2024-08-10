@@ -6,9 +6,10 @@
   "module": "dist/module/index.js",
   "types": "dist/types/index.d.ts",
   "exports": {
+    "./package.json": "./package.json",
     ".": {
-      "import": "./dist/module/index.js",
       "require": "./dist/main/index.js",
+      "import": "./dist/module/index.js",
       "types": "./dist/types/index.d.ts"
     }
   },
@@ -19,12 +20,11 @@
   },
   "homepage": "https://microgen.id",
   "scripts": {
-    "build": "npm run build:module && npm run build:main",
-    "build:module": "tsc -p tsconfig.json",
-    "build:main": "tsc -p tsconfig.main.json",
+    "build": "tsc -p tsconfig.json",
     "format": "prettier --write \"{src,test}/**/*.ts\"",
     "test": "jest",
-    "test:watch": "jest --watch --verbose false --silent false"
+    "test:watch": "jest --watch --verbose false --silent false",
+    "postbuild": "esm2cjs --in dist/module --out dist/main -l error"
   },
   "engines": {
     "node": ">=18"
@@ -40,6 +40,7 @@
   "author": "Mejik",
   "license": "MIT",
   "devDependencies": {
+    "@alcalzone/esm2cjs": "1.1.2",
     "@types/jest": "29.5.11",
     "@types/qs": "6.9.11",
     "@types/ws": "8.5.10",
