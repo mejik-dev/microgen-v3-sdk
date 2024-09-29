@@ -123,15 +123,22 @@ export default class QueryClient<T> {
   async find(
     option?: FindOption<T>,
     token?: string,
+    aggregate?: string,
   ): Promise<MicrogenResponse<T>> {
     try {
       const query = this._filter(option);
+      let headers = this.headers;
+
+      if (token) {
+        headers = { ...headers, Authorization: `Bearer ${token}` };
+      }
+
+      if (aggregate) {
+        headers = { ...headers, aggregate };
+      }
+
       const res = await this._checkResponse(
-        await fetch(`${this.url}${query ? '?' + query : ''}`, {
-          headers: token
-            ? { ...this.headers, Authorization: `Bearer ${token}` }
-            : this.headers,
-        }),
+        await fetch(`${this.url}${query ? '?' + query : ''}`, { headers }),
       );
       const data = (await res.json()) as T[];
 
@@ -409,14 +416,23 @@ export default class QueryClient<T> {
   async count(
     option?: CountOption<T>,
     token?: string,
+    aggregate?: string,
   ): Promise<MicrogenResponseCount> {
     try {
       const query = this._filter(option);
+      let headers = this.headers;
+
+      if (token) {
+        headers = { ...headers, Authorization: `Bearer ${token}` };
+      }
+
+      if (aggregate) {
+        headers = { ...headers, aggregate };
+      }
+
       const res = await this._checkResponse(
         await fetch(`${this.url}/count${query ? '?' + query : ''}`, {
-          headers: token
-            ? { ...this.headers, Authorization: `Bearer ${token}` }
-            : this.headers,
+          headers,
         }),
       );
       const data = (await res.json()) as MicrogenCount;
