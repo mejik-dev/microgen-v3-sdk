@@ -50,14 +50,27 @@ type LookupRecord =
                 Record<
                   string,
                   {
-                    $select?: string[];
                     $lookup?: LookupRecord;
+                    $select?: SelectRecord;
                   }
                 >
               >
           )[]
       >
     >;
+
+type SelectRecord = (
+  | string
+  | Partial<
+      Record<
+        string,
+        {
+          $lookup?: LookupRecord;
+          $select?: SelectRecord;
+        }
+      >
+    >
+)[];
 
 type Lookup<T> =
   | '*'
@@ -74,14 +87,27 @@ type Lookup<T> =
                 Record<
                   keyof T,
                   {
-                    $select?: string[];
                     $lookup?: LookupRecord;
+                    $select?: SelectRecord;
                   }
                 >
               >
           )[]
       >
     >;
+
+type Select<T> = (
+  | keyof T
+  | Partial<
+      Record<
+        keyof T,
+        {
+          $lookup?: LookupRecord;
+          $select?: SelectRecord;
+        }
+      >
+    >
+)[];
 
 type Where<T> = Partial<
   Record<
@@ -110,8 +136,8 @@ export interface FindOption<T> {
   skip?: number;
   where?: Where<T>;
   sort?: Partial<Record<keyof T, 1 | -1>>[];
-  select?: (keyof T)[];
   lookup?: Lookup<T>;
+  select?: Select<T>;
   or?: Where<T>[];
 }
 
@@ -121,8 +147,8 @@ export interface CountOption<T> {
 }
 
 export interface GetByIdOption<T> {
-  select?: (keyof T)[];
   lookup?: Lookup<T>;
+  select?: Select<T>;
 }
 
 export interface QueryClientOption {
