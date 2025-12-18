@@ -82,6 +82,10 @@ export default class FieldClient<T> {
 
   async getById(id: string): Promise<FieldSingleResponse<T>> {
     try {
+      if (!id) {
+        throw new Error('trying to fetch data with empty string id');
+      }
+
       const res = await this._checkResponse(
         await fetch(`${this.url}/${id}`, {
           headers: this.headers,

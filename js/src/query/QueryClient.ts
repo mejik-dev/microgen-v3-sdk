@@ -160,7 +160,12 @@ export default class QueryClient<T> {
     token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
     try {
+      if (!id) {
+        throw new Error('trying to fetch data with empty string id');
+      }
+
       const query = this._filter(option);
+
       const res = await this._checkResponse(
         await fetch(`${this.url}/${id}${query ? '?' + query : ''}`, {
           headers: token
