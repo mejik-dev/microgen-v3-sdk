@@ -44,9 +44,7 @@ export default class QueryClient<T> {
   private _error(error: any): MicrogenResponseFailure {
     if (error instanceof FailedHTTPResponse) {
       return {
-        error: {
-          message: error.data,
-        },
+        error: error.data,
         status: error.status,
         statusText: error.statusText,
       };

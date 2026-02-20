@@ -42,9 +42,7 @@ export default class AuthClient {
   private _error(error: any): AuthResponseFailure {
     if (error instanceof FailedHTTPResponse) {
       return {
-        error: {
-          message: error.data,
-        },
+        error: error.data,
         status: error.status,
         statusText: error.statusText,
       };

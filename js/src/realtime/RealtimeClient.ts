@@ -40,9 +40,7 @@ export default class RealtimeClient {
   private _error(error: any): RealtimeResponseFailure {
     if (error instanceof FailedHTTPResponse) {
       return {
-        error: {
-          message: error.data,
-        },
+        error: error.data,
         status: error.status,
         statusText: error.statusText,
       };

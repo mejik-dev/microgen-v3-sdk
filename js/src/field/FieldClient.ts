@@ -31,9 +31,7 @@ export default class FieldClient<T> {
   private _error(error: any): FieldResponseFailure {
     if (error instanceof FailedHTTPResponse) {
       return {
-        error: {
-          message: error.data,
-        },
+        error: error.data,
         status: error.status,
         statusText: error.statusText,
       };

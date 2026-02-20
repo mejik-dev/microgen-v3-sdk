@@ -30,9 +30,7 @@ export default class StorageClient {
   private _error(error: any): StorageResponseFailure {
     if (error instanceof FailedHTTPResponse) {
       return {
-        error: {
-          message: error.data,
-        },
+        error: error.data,
         status: error.status,
         statusText: error.statusText,
       };
