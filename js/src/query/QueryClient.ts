@@ -50,7 +50,6 @@ export default class QueryClient<T> {
       };
     }
 
-    console.log({ module: 'query', error });
     return {
       error: {
         message: 'failed',

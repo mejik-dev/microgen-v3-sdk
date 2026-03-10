@@ -46,7 +46,6 @@ export default class RealtimeClient {
       };
     }
 
-    console.log({ module: 'realtime', error });
     return {
       error: {
         message: 'failed',

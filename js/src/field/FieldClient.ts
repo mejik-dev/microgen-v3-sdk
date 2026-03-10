@@ -1,6 +1,7 @@
 import type {
   Field,
   FieldClientOption,
+  FieldOptions,
   FieldResponse,
   FieldResponseFailure,
   FieldSingleResponse,
@@ -37,7 +38,6 @@ export default class FieldClient<T> {
       };
     }
 
-    console.log({ module: 'field', error });
     return {
       error: {
         message: 'failed',
@@ -87,6 +87,30 @@ export default class FieldClient<T> {
       const res = await this._checkResponse(
         await fetch(`${this.url}/${id}`, {
           headers: this.headers,
+        }),
+      );
+      const data = (await res.json()) as Field<T>;
+
+      return {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+      };
+    } catch (error) {
+      return this._error(error);
+    }
+  }
+
+  async create(body: {
+    name: string;
+    config: FieldOptions<T>;
+  }): Promise<FieldSingleResponse<T>> {
+    try {
+      const res = await this._checkResponse(
+        await fetch(this.url, {
+          method: 'POST',
+          headers: { ...this.headers, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
         }),
       );
       const data = (await res.json()) as Field<T>;

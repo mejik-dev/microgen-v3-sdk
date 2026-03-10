@@ -11,6 +11,14 @@ export interface Field<T> {
   defaultValue: T;
 }
 
+export interface FieldOptions<T> {
+  type: string;
+  typeOptions: { [key: string]: T };
+  isRequired?: boolean;
+  isUnique?: boolean;
+  defaultValue?: T;
+}
+
 interface FieldResponseBase {
   status: number;
   statusText: string;
