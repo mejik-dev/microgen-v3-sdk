@@ -118,7 +118,7 @@ export default class AuthClient {
       lastName?: string;
       email: string;
       password: string;
-      role?: string;
+      role?: string[];
     },
   ): Promise<AuthResponse<T>> {
     try {
