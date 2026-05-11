@@ -157,6 +157,10 @@ const { data, error } = await microgen
   .service('posts')
   .updateById('605a251d7b8678bf6811k3b1', {
     notes: 'Hello world',
+    $inc: {
+      counter: 1,
+      balance: -5,
+    },
   });
 ```
 
@@ -167,10 +171,16 @@ const { data, error } = await microgen.service('posts').updateMany([
   {
     _id: '605a251d7b8678bf6811k3b1',
     notes: 'Hello world',
+    $inc: {
+      counter: 1,
+    },
   },
   {
     _id: '605a251d7b8678bf6811k3b2',
     notes: 'Hello microgen',
+    $inc: {
+      balance: -5,
+    },
   },
 ]);
 ```

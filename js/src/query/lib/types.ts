@@ -151,6 +151,10 @@ export interface GetByIdOption<T> {
   select?: Select<T>;
 }
 
+export type UpdateBody<T> = Partial<T> & {
+  $inc?: Partial<Record<keyof T, number>>;
+};
+
 export interface QueryClientOption {
   url: string;
   headers?: Record<string, string>;

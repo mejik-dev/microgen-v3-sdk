@@ -10,6 +10,7 @@ import type {
   MicrogenResponseFailure,
   MicrogenSingleResponse,
   QueryClientOption,
+  UpdateBody,
 } from './lib/types';
 import { FieldClient } from '../field';
 
@@ -215,18 +216,23 @@ export default class QueryClient<T> {
   async createMany(
     body: Partial<T>[],
     token?: string,
+    bulkBehavior?: 'count' | 'total',
   ): Promise<MicrogenResponse<T>> {
     try {
+      let headers = this.headers;
+
+      if (token) {
+        headers = { ...headers, Authorization: `Bearer ${token}` };
+      }
+
+      if (bulkBehavior) {
+        headers = { ...headers, 'X-Bulk-Response-Type': bulkBehavior };
+      }
+
       const res = await this._checkResponse(
         await fetch(this.url, {
           method: 'POST',
-          headers: token
-            ? {
-                ...this.headers,
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              }
-            : { ...this.headers, 'Content-Type': 'application/json' },
+          headers: { ...headers, 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         }),
       );
@@ -244,7 +250,7 @@ export default class QueryClient<T> {
 
   async updateById(
     id: string,
-    body: Partial<T>,
+    body: UpdateBody<T>,
     token?: string,
   ): Promise<MicrogenSingleResponse<T>> {
     try {
@@ -274,20 +280,25 @@ export default class QueryClient<T> {
   }
 
   async updateMany(
-    body: Partial<T>[],
+    body: UpdateBody<T>[],
     token?: string,
+    bulkBehavior?: 'count' | 'total',
   ): Promise<MicrogenResponse<T>> {
     try {
+      let headers = this.headers;
+
+      if (token) {
+        headers = { ...headers, Authorization: `Bearer ${token}` };
+      }
+
+      if (bulkBehavior) {
+        headers = { ...headers, 'X-Bulk-Response-Type': bulkBehavior };
+      }
+
       const res = await this._checkResponse(
         await fetch(this.url, {
           method: 'PATCH',
-          headers: token
-            ? {
-                ...this.headers,
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              }
-            : { ...this.headers, 'Content-Type': 'application/json' },
+          headers: { ...headers, 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         }),
       );
@@ -331,14 +342,23 @@ export default class QueryClient<T> {
   async deleteMany(
     body: string[],
     token?: string,
+    bulkBehavior?: 'count' | 'total',
   ): Promise<MicrogenResponse<T>> {
     try {
+      let headers = this.headers;
+
+      if (token) {
+        headers = { ...headers, Authorization: `Bearer ${token}` };
+      }
+
+      if (bulkBehavior) {
+        headers = { ...headers, 'X-Bulk-Response-Type': bulkBehavior };
+      }
+
       const res = await this._checkResponse(
         await fetch(`${this.url}?recordIds=${body.join(',')}`, {
           method: 'DELETE',
-          headers: token
-            ? { ...this.headers, Authorization: `Bearer ${token}` }
-            : this.headers,
+          headers,
         }),
       );
       const data = (await res.json()) as T[];
