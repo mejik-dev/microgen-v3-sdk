@@ -1,7 +1,9 @@
 import qs from 'qs';
 
 import type {
+  BulkBehavior,
   CountOption,
+  MicrogenBulkResponse,
   FindOption,
   GetByIdOption,
   MicrogenCount,
@@ -216,8 +218,19 @@ export default class QueryClient<T> {
   async createMany(
     body: Partial<T>[],
     token?: string,
-    bulkBehavior?: 'count' | 'total',
-  ): Promise<MicrogenResponse<T>> {
+  ): Promise<MicrogenResponse<T>>;
+
+  async createMany(
+    body: Partial<T>[],
+    token?: string,
+    bulkBehavior?: BulkBehavior,
+  ): Promise<MicrogenResponseCount>;
+
+  async createMany(
+    body: Partial<T>[],
+    token?: string,
+    bulkBehavior?: BulkBehavior,
+  ): Promise<MicrogenBulkResponse<T>> {
     try {
       let headers = this.headers;
 
@@ -236,7 +249,7 @@ export default class QueryClient<T> {
           body: JSON.stringify(body),
         }),
       );
-      const data = (await res.json()) as T[];
+      const data = (await res.json()) as T[] | MicrogenCount;
 
       return {
         data,
@@ -282,8 +295,19 @@ export default class QueryClient<T> {
   async updateMany(
     body: UpdateBody<T>[],
     token?: string,
-    bulkBehavior?: 'count' | 'total',
-  ): Promise<MicrogenResponse<T>> {
+  ): Promise<MicrogenResponse<T>>;
+
+  async updateMany(
+    body: UpdateBody<T>[],
+    token?: string,
+    bulkBehavior?: BulkBehavior,
+  ): Promise<MicrogenResponseCount>;
+
+  async updateMany(
+    body: UpdateBody<T>[],
+    token?: string,
+    bulkBehavior?: BulkBehavior,
+  ): Promise<MicrogenBulkResponse<T>> {
     try {
       let headers = this.headers;
 
@@ -302,7 +326,7 @@ export default class QueryClient<T> {
           body: JSON.stringify(body),
         }),
       );
-      const data = (await res.json()) as T[];
+      const data = (await res.json()) as T[] | MicrogenCount;
 
       return {
         data,
@@ -342,8 +366,19 @@ export default class QueryClient<T> {
   async deleteMany(
     body: string[],
     token?: string,
-    bulkBehavior?: 'count' | 'total',
-  ): Promise<MicrogenResponse<T>> {
+  ): Promise<MicrogenResponse<T>>;
+
+  async deleteMany(
+    body: string[],
+    token?: string,
+    bulkBehavior?: BulkBehavior,
+  ): Promise<MicrogenResponseCount>;
+
+  async deleteMany(
+    body: string[],
+    token?: string,
+    bulkBehavior?: BulkBehavior,
+  ): Promise<MicrogenBulkResponse<T>> {
     try {
       let headers = this.headers;
 
@@ -361,7 +396,7 @@ export default class QueryClient<T> {
           headers,
         }),
       );
-      const data = (await res.json()) as T[];
+      const data = (await res.json()) as T[] | MicrogenCount;
 
       return {
         data,

@@ -28,6 +28,8 @@ export type MicrogenResponse<T> = (
 ) &
   Pagination;
 
+export type BulkBehavior = 'count' | 'total';
+
 interface MicrogenSingleResponseSuccess<T> extends MicrogenResponseBase {
   data?: T;
   error?: null;
@@ -172,3 +174,7 @@ export interface MicrogenResponseSuccessCount extends MicrogenResponseBase {
 export type MicrogenResponseCount =
   | MicrogenResponseSuccessCount
   | MicrogenResponseFailure;
+
+export type MicrogenBulkResponse<T> =
+  | MicrogenResponse<T>
+  | MicrogenResponseCount;
